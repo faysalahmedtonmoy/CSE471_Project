@@ -3,16 +3,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function RegisterPage() {
-<<<<<<< HEAD
-=======
-  // Added 'role' with a default value of 'USER'
->>>>>>> origin/asha-module1
   const [formData, setFormData] = useState({ 
     name: '', 
     email: '', 
     password: '', 
     location: '', 
-<<<<<<< HEAD
     role: 'USER',
     // Provider fields
     skills: '',
@@ -20,9 +15,6 @@ export default function RegisterPage() {
     shopAddress: '',
     phone: '',
     serviceType: ''
-=======
-    role: 'USER' 
->>>>>>> origin/asha-module1
   });
   
   const [loadingLocation, setLoadingLocation] = useState(false);
@@ -44,7 +36,6 @@ export default function RegisterPage() {
   };
 
   const handleSubmit = async (e) => {
-<<<<<<< HEAD
     e.preventDefault();
     
     // Process skills into array and handle custom service type
@@ -71,25 +62,6 @@ export default function RegisterPage() {
       alert(data.message);
     }
   };
-=======
-  e.preventDefault();
-  const res = await fetch('/api/auth/register', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(formData),
-  });
-
-  const data = await res.json();
-  if (res.ok) {
-    // Save data temporarily to session
-    sessionStorage.setItem('tempSignupData', JSON.stringify(formData));
-    sessionStorage.setItem('serverOtp', data.otp);
-    router.push('/verify-registration');
-  } else {
-    alert(data.message);
-  }
-};
->>>>>>> origin/asha-module1
 
   return (
     <div style={s.container}>
@@ -102,10 +74,6 @@ export default function RegisterPage() {
           <input type="email" placeholder="Email Address" required style={s.input}
             onChange={(e) => setFormData({...formData, email: e.target.value})} />
 
-<<<<<<< HEAD
-=======
-          {/* --- ROLE SELECTION --- */}
->>>>>>> origin/asha-module1
           <label style={s.label}>I want to join as a:</label>
           <select 
             style={s.input} 
@@ -120,7 +88,6 @@ export default function RegisterPage() {
           <div style={{ display: 'flex', gap: '5px', marginBottom: '15px' }}>
             <input type="text" placeholder="Location" required style={{ ...s.input, marginBottom: 0 }}
               value={formData.location} onChange={(e) => setFormData({...formData, location: e.target.value})} />
-<<<<<<< HEAD
             <button type="button" onClick={getMyLocation} style={s.locBtn}>📍</button>
           </div>
 
@@ -223,26 +190,12 @@ export default function RegisterPage() {
         <p style={{ textAlign: 'center', marginTop: '1rem' }}>
           Already have an account? <a href="/login" style={s.link}>Login here</a>
         </p>
-=======
-            <button type="button" onClick={getMyLocation} style={s.locBtn}>
-              {loadingLocation ? '...' : '📍'}
-            </button>
-          </div>
-
-          <input type="password" placeholder="Password" required style={s.input}
-            onChange={(e) => setFormData({...formData, password: e.target.value})} />
-          
-          <button type="submit" style={s.btn}>Create Account</button>
-        </form>
-        <button onClick={() => router.push('/')} style={s.backBtn}>← Back to Login</button>
->>>>>>> origin/asha-module1
       </div>
     </div>
   );
 }
 
 const s = {
-<<<<<<< HEAD
   container: {
     display: 'flex',
     justifyContent: 'center',
@@ -321,13 +274,4 @@ const s = {
     cursor: 'pointer',
     fontSize: '14px',
   },
-=======
-  container: { display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', background: '#f3f4f6' },
-  card: { background: 'white', padding: '30px', borderRadius: '10px', width: '380px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' },
-  label: { fontSize: '0.8rem', color: '#666', marginBottom: '5px', display: 'block' },
-  input: { width: '100%', padding: '12px', marginBottom: '15px', border: '1px solid #ddd', borderRadius: '5px', boxSizing: 'border-box', background: '#fff' },
-  locBtn: { background: '#e5e7eb', border: '1px solid #ddd', borderRadius: '5px', padding: '0 15px', cursor: 'pointer' },
-  btn: { width: '100%', padding: '12px', background: '#2563eb', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' },
-  backBtn: { width: '100%', marginTop: '10px', background: 'none', border: 'none', color: '#666', cursor: 'pointer' }
->>>>>>> origin/asha-module1
 };
