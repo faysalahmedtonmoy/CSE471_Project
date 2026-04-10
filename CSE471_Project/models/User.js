@@ -1,10 +1,15 @@
+<<<<<<< HEAD
 import mongoose from "mongoose";
+=======
+const mongoose = require('mongoose'); // <--- ADD THIS LINE
+>>>>>>> origin/asha-module1
 
 const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   location: { type: String, required: true },
+<<<<<<< HEAD
   role: {
     type: String,
     enum: ['USER', 'PROVIDER', 'ADMIN'],
@@ -33,3 +38,14 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.models.User || mongoose.model('User', UserSchema);
 export default User;
+=======
+  role: { 
+    type: String, 
+    enum: ['USER', 'PROVIDER', 'ADMIN'], 
+    default: 'USER' 
+  },
+  verificationCode: { type: String, default: null } 
+});
+
+module.exports = mongoose.models.User || mongoose.model('User', UserSchema);
+>>>>>>> origin/asha-module1

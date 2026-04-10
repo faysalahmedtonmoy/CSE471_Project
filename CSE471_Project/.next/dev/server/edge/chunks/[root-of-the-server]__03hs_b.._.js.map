@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 16, "column": 0}, "map": {"version":3,"sources":["turbopack:///[project]/middleware.js"],"sourcesContent":["import { NextResponse } from 'next/server';\r\n\r\nexport function middleware(request) {\r\n  // For now, we just let every request pass through\r\n  return NextResponse.next();\r\n}\r\n\r\n// This tells Next.js which routes to run the middleware on\r\nexport const config = {\r\n  matcher: ['/api/:path*', '/dashboard/:path*'],\r\n};"],"names":["middleware","request","next","config","matcher"],"mappings":";;;;;;AAAA;AAAA;;AAEO,SAASA,WAAWC,OAAO;IAChC,kDAAkD;IAClD,OAAO,6MAAY,CAACC,IAAI;AAC1B;AAGO,MAAMC,SAAS;IACpBC,SAAS;QAAC;QAAe;KAAoB;AAC/C"}}]
+}

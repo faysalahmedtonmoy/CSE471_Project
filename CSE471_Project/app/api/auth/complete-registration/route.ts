@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { NextResponse } from "next/server";
 import User from "../../../../models/User";
 import jwt from "jsonwebtoken";
@@ -15,10 +16,17 @@ const connectDB = async () => {
     throw error;
   }
 };
+=======
+import connectDB from "../../../../lib/mongodb";
+import User from "../../../../models/User";
+import bcrypt from "bcryptjs";
+import { NextResponse } from "next/server";
+>>>>>>> origin/asha-module1
 
 export async function POST(req: Request) {
   try {
     await connectDB();
+<<<<<<< HEAD
     const { email } = await req.json();
 
     // 1. Find the user (already created during registration)
@@ -52,6 +60,24 @@ export async function POST(req: Request) {
 
   } catch (error: any) {
     console.error("Verification error:", error);
+=======
+    const { name, email, password, location, role } = await req.json();
+
+    // 1. Hash the password before saving
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 2. Create the user in the database
+    const newUser = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      location,
+      role
+    });
+
+    return NextResponse.json({ message: "User created successfully!" }, { status: 201 });
+  } catch (error: any) {
+>>>>>>> origin/asha-module1
     return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }

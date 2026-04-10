@@ -10,8 +10,12 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.0",
+<<<<<<< HEAD
     "mongodb": "^7.1.1",
     "mongoose": "^8.23.0",
+=======
+    "mongoose": "^8.0.0",
+>>>>>>> origin/asha-module1
     "next": "latest",
     "nodemailer": "^8.0.4",
     "react": "latest",

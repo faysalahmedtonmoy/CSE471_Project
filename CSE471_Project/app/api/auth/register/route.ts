@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+<<<<<<< HEAD
 import User from "../../../../models/User";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
@@ -58,15 +59,36 @@ export async function POST(req: Request) {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     // 7. Log OTP (for testing purposes)
+=======
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const { email } = body;
+
+    // 1. GENERATE OTP IMMEDIATELY
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // 2. LOG IT BEFORE ANYTHING ELSE
+>>>>>>> origin/asha-module1
     console.log("*****************************************");
     console.log(`NEW REGISTRATION ATTEMPT FOR: ${email}`);
     console.log(`YOUR OTP IS: ${otp}`);
     console.log("*****************************************");
 
+<<<<<<< HEAD
     return NextResponse.json({ 
       message: "User registered. OTP sent to your email", 
       otp: otp,
       userId: newUser._id
+=======
+    // 3. DATABASE CALL (This is what's failing right now)
+    // await connectDB(); 
+
+    return NextResponse.json({ 
+      message: "OTP sent to terminal", 
+      otp: otp 
+>>>>>>> origin/asha-module1
     }, { status: 200 });
 
   } catch (error: any) {

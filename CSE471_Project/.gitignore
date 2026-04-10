@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 .next/
 node_modules/
 *.sst
 *.log
+=======
+node_modules
+.env
+.DS_Store
+>>>>>>> origin/asha-module1
