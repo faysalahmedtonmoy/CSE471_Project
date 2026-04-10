@@ -14,13 +14,18 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navi
 ;
 ;
 function RegisterPage() {
-    // Added 'role' with a default value of 'USER'
     const [formData, setFormData] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])({
         name: '',
         email: '',
         password: '',
         location: '',
-        role: 'USER'
+        role: 'USER',
+        // Provider fields
+        skills: '',
+        workType: 'shop',
+        shopAddress: '',
+        phone: '',
+        serviceType: ''
     });
     const [loadingLocation, setLoadingLocation] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useRouter"])();
@@ -45,18 +50,23 @@ function RegisterPage() {
     };
     const handleSubmit = async (e)=>{
         e.preventDefault();
+        // Process skills into array and handle custom service type
+        const submitData = {
+            ...formData,
+            skills: formData.role === 'PROVIDER' ? formData.skills.split(',').map((s)=>s.trim()).filter((s)=>s) : [],
+            serviceType: formData.serviceType === 'Other' ? formData.customServiceType : formData.serviceType
+        };
         const res = await fetch('/api/auth/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(submitData)
         });
         const data = await res.json();
         if (res.ok) {
-            // Save data temporarily to session
-            sessionStorage.setItem('tempSignupData', JSON.stringify(formData));
-            sessionStorage.setItem('serverOtp', data.otp);
+            if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
+            ;
             router.push('/verify-registration');
         } else {
             alert(data.message);
@@ -75,7 +85,7 @@ function RegisterPage() {
                     children: "Join AshePashe"
                 }, void 0, false, {
                     fileName: "[project]/app/register/page.js",
-                    lineNumber: 55,
+                    lineNumber: 69,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -92,7 +102,7 @@ function RegisterPage() {
                                 })
                         }, void 0, false, {
                             fileName: "[project]/app/register/page.js",
-                            lineNumber: 57,
+                            lineNumber: 71,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -106,7 +116,7 @@ function RegisterPage() {
                                 })
                         }, void 0, false, {
                             fileName: "[project]/app/register/page.js",
-                            lineNumber: 60,
+                            lineNumber: 74,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -114,7 +124,7 @@ function RegisterPage() {
                             children: "I want to join as a:"
                         }, void 0, false, {
                             fileName: "[project]/app/register/page.js",
-                            lineNumber: 64,
+                            lineNumber: 77,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -130,7 +140,7 @@ function RegisterPage() {
                                     children: "General User (Looking for services)"
                                 }, void 0, false, {
                                     fileName: "[project]/app/register/page.js",
-                                    lineNumber: 70,
+                                    lineNumber: 83,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -138,7 +148,7 @@ function RegisterPage() {
                                     children: "Service Provider (Offering services)"
                                 }, void 0, false, {
                                     fileName: "[project]/app/register/page.js",
-                                    lineNumber: 71,
+                                    lineNumber: 84,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -146,13 +156,13 @@ function RegisterPage() {
                                     children: "Administrator"
                                 }, void 0, false, {
                                     fileName: "[project]/app/register/page.js",
-                                    lineNumber: 72,
+                                    lineNumber: 85,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/register/page.js",
-                            lineNumber: 65,
+                            lineNumber: 78,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -177,24 +187,290 @@ function RegisterPage() {
                                         })
                                 }, void 0, false, {
                                     fileName: "[project]/app/register/page.js",
-                                    lineNumber: 76,
+                                    lineNumber: 89,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                     type: "button",
                                     onClick: getMyLocation,
                                     style: s.locBtn,
-                                    children: loadingLocation ? '...' : '📍'
+                                    children: "📍"
                                 }, void 0, false, {
                                     fileName: "[project]/app/register/page.js",
-                                    lineNumber: 78,
+                                    lineNumber: 91,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/register/page.js",
-                            lineNumber: 75,
+                            lineNumber: 88,
                             columnNumber: 11
+                        }, this),
+                        formData.role === 'PROVIDER' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            style: s.providerSection,
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                    style: {
+                                        borderBottom: '2px solid #2563eb',
+                                        paddingBottom: '10px'
+                                    },
+                                    children: "Provider Information"
+                                }, void 0, false, {
+                                    fileName: "[project]/app/register/page.js",
+                                    lineNumber: 97,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                    style: s.label,
+                                    children: "Service Type:"
+                                }, void 0, false, {
+                                    fileName: "[project]/app/register/page.js",
+                                    lineNumber: 99,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
+                                    style: s.input,
+                                    value: formData.serviceType,
+                                    onChange: (e)=>setFormData({
+                                            ...formData,
+                                            serviceType: e.target.value
+                                        }),
+                                    required: true,
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                            value: "",
+                                            children: "Select Service Type"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/register/page.js",
+                                            lineNumber: 106,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                            value: "Electrician",
+                                            children: "Electrician"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/register/page.js",
+                                            lineNumber: 107,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                            value: "Plumber",
+                                            children: "Plumber"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/register/page.js",
+                                            lineNumber: 108,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                            value: "Carpenter",
+                                            children: "Carpenter"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/register/page.js",
+                                            lineNumber: 109,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                            value: "HVAC Technician",
+                                            children: "HVAC Technician"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/register/page.js",
+                                            lineNumber: 110,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                            value: "Auto Mechanic",
+                                            children: "Auto Mechanic"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/register/page.js",
+                                            lineNumber: 111,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                            value: "General Technician",
+                                            children: "General Technician"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/register/page.js",
+                                            lineNumber: 112,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                            value: "Manual Labor Worker",
+                                            children: "Manual Labor Worker"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/register/page.js",
+                                            lineNumber: 113,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                            value: "Other",
+                                            children: "Other (Specify below)"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/register/page.js",
+                                            lineNumber: 114,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/app/register/page.js",
+                                    lineNumber: 100,
+                                    columnNumber: 15
+                                }, this),
+                                formData.serviceType === 'Other' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                    type: "text",
+                                    placeholder: "Please specify your profession/service type",
+                                    style: s.input,
+                                    value: formData.customServiceType || '',
+                                    onChange: (e)=>setFormData({
+                                            ...formData,
+                                            customServiceType: e.target.value
+                                        }),
+                                    required: true
+                                }, void 0, false, {
+                                    fileName: "[project]/app/register/page.js",
+                                    lineNumber: 118,
+                                    columnNumber: 17
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                    style: s.label,
+                                    children: "Professional Skills (comma-separated):"
+                                }, void 0, false, {
+                                    fileName: "[project]/app/register/page.js",
+                                    lineNumber: 128,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                    type: "text",
+                                    placeholder: "e.g., Emergency Care, First Aid, Surgery",
+                                    style: s.input,
+                                    value: formData.skills,
+                                    onChange: (e)=>setFormData({
+                                            ...formData,
+                                            skills: e.target.value
+                                        })
+                                }, void 0, false, {
+                                    fileName: "[project]/app/register/page.js",
+                                    lineNumber: 129,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                    style: s.label,
+                                    children: "Work Type:"
+                                }, void 0, false, {
+                                    fileName: "[project]/app/register/page.js",
+                                    lineNumber: 137,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    style: s.radioGroup,
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                            style: s.radioLabel,
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                    type: "radio",
+                                                    value: "mobile",
+                                                    checked: formData.workType === 'mobile',
+                                                    onChange: (e)=>setFormData({
+                                                            ...formData,
+                                                            workType: e.target.value
+                                                        })
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/register/page.js",
+                                                    lineNumber: 140,
+                                                    columnNumber: 19
+                                                }, this),
+                                                " 🚗 Mobile Worker (Travels to locations)"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/register/page.js",
+                                            lineNumber: 139,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                            style: s.radioLabel,
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                    type: "radio",
+                                                    value: "shop",
+                                                    checked: formData.workType === 'shop',
+                                                    onChange: (e)=>setFormData({
+                                                            ...formData,
+                                                            workType: e.target.value
+                                                        })
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/register/page.js",
+                                                    lineNumber: 148,
+                                                    columnNumber: 19
+                                                }, this),
+                                                " 🏢 Shop/Facility (Fixed location)"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/register/page.js",
+                                            lineNumber: 147,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                            style: s.radioLabel,
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                    type: "radio",
+                                                    value: "both",
+                                                    checked: formData.workType === 'both',
+                                                    onChange: (e)=>setFormData({
+                                                            ...formData,
+                                                            workType: e.target.value
+                                                        })
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/register/page.js",
+                                                    lineNumber: 156,
+                                                    columnNumber: 19
+                                                }, this),
+                                                " 🔄 Both (Mobile & Fixed)"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/register/page.js",
+                                            lineNumber: 155,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/app/register/page.js",
+                                    lineNumber: 138,
+                                    columnNumber: 15
+                                }, this),
+                                (formData.workType === 'shop' || formData.workType === 'both') && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                    type: "text",
+                                    placeholder: "Shop/Facility Address",
+                                    style: s.input,
+                                    value: formData.shopAddress,
+                                    onChange: (e)=>setFormData({
+                                            ...formData,
+                                            shopAddress: e.target.value
+                                        })
+                                }, void 0, false, {
+                                    fileName: "[project]/app/register/page.js",
+                                    lineNumber: 166,
+                                    columnNumber: 17
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                    type: "tel",
+                                    placeholder: "Contact Phone Number",
+                                    style: s.input,
+                                    value: formData.phone,
+                                    onChange: (e)=>setFormData({
+                                            ...formData,
+                                            phone: e.target.value
+                                        })
+                                }, void 0, false, {
+                                    fileName: "[project]/app/register/page.js",
+                                    lineNumber: 175,
+                                    columnNumber: 15
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/app/register/page.js",
+                            lineNumber: 96,
+                            columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                             type: "password",
@@ -207,7 +483,7 @@ function RegisterPage() {
                                 })
                         }, void 0, false, {
                             fileName: "[project]/app/register/page.js",
-                            lineNumber: 83,
+                            lineNumber: 185,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -216,90 +492,127 @@ function RegisterPage() {
                             children: "Create Account"
                         }, void 0, false, {
                             fileName: "[project]/app/register/page.js",
-                            lineNumber: 86,
+                            lineNumber: 188,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/register/page.js",
-                    lineNumber: 56,
+                    lineNumber: 70,
                     columnNumber: 9
                 }, this),
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                    onClick: ()=>router.push('/'),
-                    style: s.backBtn,
-                    children: "← Back to Login"
-                }, void 0, false, {
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                    style: {
+                        textAlign: 'center',
+                        marginTop: '1rem'
+                    },
+                    children: [
+                        "Already have an account? ",
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
+                            href: "/login",
+                            style: s.link,
+                            children: "Login here"
+                        }, void 0, false, {
+                            fileName: "[project]/app/register/page.js",
+                            lineNumber: 191,
+                            columnNumber: 36
+                        }, this)
+                    ]
+                }, void 0, true, {
                     fileName: "[project]/app/register/page.js",
-                    lineNumber: 88,
+                    lineNumber: 190,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/register/page.js",
-            lineNumber: 54,
+            lineNumber: 68,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/app/register/page.js",
-        lineNumber: 53,
+        lineNumber: 67,
         columnNumber: 5
     }, this);
 }
 const s = {
     container: {
         display: 'flex',
-        minHeight: '100vh',
-        alignItems: 'center',
         justifyContent: 'center',
-        background: '#f3f4f6'
+        alignItems: 'center',
+        minHeight: '100vh',
+        backgroundColor: '#f5f5f5',
+        padding: '20px'
     },
     card: {
-        background: 'white',
-        padding: '30px',
-        borderRadius: '10px',
-        width: '380px',
-        boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
-    },
-    label: {
-        fontSize: '0.8rem',
-        color: '#666',
-        marginBottom: '5px',
-        display: 'block'
+        backgroundColor: 'white',
+        padding: '2rem',
+        borderRadius: '8px',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+        width: '100%',
+        maxWidth: '500px',
+        maxHeight: '90vh',
+        overflowY: 'auto'
     },
     input: {
         width: '100%',
-        padding: '12px',
-        marginBottom: '15px',
+        padding: '0.75rem',
+        marginBottom: '1rem',
         border: '1px solid #ddd',
-        borderRadius: '5px',
-        boxSizing: 'border-box',
-        background: '#fff'
+        borderRadius: '4px',
+        fontSize: '1rem',
+        boxSizing: 'border-box'
+    },
+    label: {
+        display: 'block',
+        marginBottom: '0.5rem',
+        fontWeight: 'bold',
+        color: '#555'
     },
     locBtn: {
-        background: '#e5e7eb',
-        border: '1px solid #ddd',
-        borderRadius: '5px',
-        padding: '0 15px',
-        cursor: 'pointer'
+        padding: '0.75rem 1rem',
+        backgroundColor: '#3498db',
+        color: 'white',
+        border: 'none',
+        borderRadius: '4px',
+        cursor: 'pointer',
+        fontSize: '1.2rem',
+        marginBottom: '1rem'
     },
     btn: {
         width: '100%',
-        padding: '12px',
-        background: '#2563eb',
+        padding: '0.75rem',
+        backgroundColor: '#2563eb',
         color: 'white',
         border: 'none',
-        borderRadius: '5px',
+        borderRadius: '4px',
+        fontSize: '1rem',
         cursor: 'pointer',
-        fontWeight: 'bold'
+        marginTop: '0.5rem'
     },
-    backBtn: {
-        width: '100%',
-        marginTop: '10px',
-        background: 'none',
-        border: 'none',
-        color: '#666',
-        cursor: 'pointer'
+    link: {
+        color: '#2563eb',
+        textDecoration: 'none'
+    },
+    providerSection: {
+        backgroundColor: '#f0f7ff',
+        padding: '15px',
+        borderRadius: '6px',
+        marginBottom: '15px',
+        border: '1px solid #2563eb'
+    },
+    radioGroup: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '10px',
+        marginBottom: '15px'
+    },
+    radioLabel: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        cursor: 'pointer',
+        fontSize: '14px'
     }
 };
 }),

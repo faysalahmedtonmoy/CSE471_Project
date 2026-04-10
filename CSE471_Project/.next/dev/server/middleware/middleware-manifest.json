@@ -12,8 +12,12 @@
       "entrypoint": "server/edge/chunks/turbopack-node_modules_next_dist_esm_build_templates_edge-wrapper_0eo11-v.js",
       "matchers": [
         {
-          "regexp": "^/.*$",
-          "originalSource": "/:path*"
+          "regexp": "/:nextData(_next/data/[^/]{1,})?/api/:path*{(\\\\.json)}?",
+          "originalSource": "/api/:path*"
+        },
+        {
+          "regexp": "/:nextData(_next/data/[^/]{1,})?/dashboard/:path*{(\\\\.json)}?",
+          "originalSource": "/dashboard/:path*"
         }
       ],
       "wasm": [],
@@ -21,9 +25,9 @@
       "env": {
         "__NEXT_BUILD_ID": "development",
         "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "fwtkHfzkQSGBjnhcq9532uNPQabOGRU2wbc2O7Le2FM=",
-        "__NEXT_PREVIEW_MODE_ID": "61181f0b961f2c7d61f4fe30fe5f570b",
-        "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "053f249d1067586dc657a8e49f5756a6c464a41fb35c61edbfcbcbd469654232",
-        "__NEXT_PREVIEW_MODE_SIGNING_KEY": "d44f8365e83150dc405ad38d5afdb068619d259d8589e2832e970bc8b4ded509"
+        "__NEXT_PREVIEW_MODE_ID": "cd98c4c2941f89ffe2075aade978c6c8",
+        "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "11e04e7ec75041bbaf6e184a789a2fa2227fc94c82c1a642b3d1a03686c7d09b",
+        "__NEXT_PREVIEW_MODE_SIGNING_KEY": "60d08db742f84885298ab7725a235335eb2286314d4699557023a97f4ac6c96e"
       }
     }
   },
