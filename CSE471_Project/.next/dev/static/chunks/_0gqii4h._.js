@@ -19,29 +19,52 @@ function OTPForm() {
     const [inputOtp, setInputOtp] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
     const searchParams = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSearchParams"])();
-    // Get data passed from the Register page
-    const signupData = JSON.parse(sessionStorage.getItem('tempSignupData'));
-    const serverOtp = sessionStorage.getItem('serverOtp');
+    // Get data passed from the Register page - only access sessionStorage on client side
+    const [signupData, setSignupData] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({});
+    const [serverOtp, setServerOtp] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])('');
+    // Use useEffect to safely access sessionStorage on client side
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "OTPForm.useEffect": ()=>{
+            if ("TURBOPACK compile-time truthy", 1) {
+                const data = JSON.parse(sessionStorage.getItem('tempSignupData') || '{}');
+                const otp = sessionStorage.getItem('serverOtp') || '';
+                setSignupData(data);
+                setServerOtp(otp);
+            }
+        }
+    }["OTPForm.useEffect"], []);
     const handleVerify = async (e)=>{
         e.preventDefault();
-        // 1. Get the OTP the server sent (stored in SessionStorage during Register)
-        const savedOtp = sessionStorage.getItem('serverOtp');
-        const userData = JSON.parse(sessionStorage.getItem('tempSignupData'));
-        if (inputOtp === savedOtp) {
-            // 2. OTP matches! Now save to Database
+        if (inputOtp === serverOtp) {
+            // OTP matches! Verify the email in database
             const res = await fetch('/api/auth/complete-registration', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(userData)
+                body: JSON.stringify({
+                    email: signupData.email
+                })
             });
+            const data = await res.json();
             if (res.ok) {
-                alert("Registration Successful! Redirecting to Login...");
-                sessionStorage.clear(); // Clean up
-                window.location.href = "/"; // Return to Login Page
+                // Save token and redirect
+                if ("TURBOPACK compile-time truthy", 1) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('userRole', data.user.role);
+                    localStorage.setItem('userName', data.user.name);
+                    sessionStorage.clear(); // Clean up
+                }
+                // Redirect based on role
+                if (data.user.role === 'ADMIN') {
+                    window.location.href = '/admin';
+                } else if (data.user.role === 'PROVIDER') {
+                    window.location.href = '/provider-dashboard';
+                } else {
+                    window.location.href = '/user-dashboard';
+                }
             } else {
-                alert("Database error. Please try again.");
+                alert(data.message || "Verification failed. Please try again.");
             }
         } else {
             alert("Invalid OTP code.");
@@ -49,56 +72,61 @@ function OTPForm() {
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         style: s.container,
-        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
-            onSubmit: handleVerify,
-            style: s.card,
-            children: [
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
-                    children: "Enter OTP"
-                }, void 0, false, {
-                    fileName: "[project]/app/verify-registration/page.js",
-                    lineNumber: 44,
-                    columnNumber: 9
-                }, this),
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                    children: "Check your email for the 6-digit code"
-                }, void 0, false, {
-                    fileName: "[project]/app/verify-registration/page.js",
-                    lineNumber: 45,
-                    columnNumber: 9
-                }, this),
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                    type: "text",
-                    maxLength: "6",
-                    style: s.input,
-                    onChange: (e)=>setInputOtp(e.target.value)
-                }, void 0, false, {
-                    fileName: "[project]/app/verify-registration/page.js",
-                    lineNumber: 46,
-                    columnNumber: 9
-                }, this),
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                    type: "submit",
-                    style: s.btn,
-                    children: "Verify & Register"
-                }, void 0, false, {
-                    fileName: "[project]/app/verify-registration/page.js",
-                    lineNumber: 50,
-                    columnNumber: 9
-                }, this)
-            ]
-        }, void 0, true, {
-            fileName: "[project]/app/verify-registration/page.js",
-            lineNumber: 43,
-            columnNumber: 7
-        }, this)
-    }, void 0, false, {
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                children: "Verify Your Email"
+            }, void 0, false, {
+                fileName: "[project]/app/verify-registration/page.js",
+                lineNumber: 63,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                children: "Enter the 6-digit code sent to your email"
+            }, void 0, false, {
+                fileName: "[project]/app/verify-registration/page.js",
+                lineNumber: 64,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
+                onSubmit: handleVerify,
+                style: s.card,
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                        type: "text",
+                        placeholder: "Enter OTP",
+                        value: inputOtp,
+                        onChange: (e)=>setInputOtp(e.target.value),
+                        style: s.input,
+                        maxLength: "6",
+                        required: true
+                    }, void 0, false, {
+                        fileName: "[project]/app/verify-registration/page.js",
+                        lineNumber: 66,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                        type: "submit",
+                        style: s.btn,
+                        children: "Verify & Register"
+                    }, void 0, false, {
+                        fileName: "[project]/app/verify-registration/page.js",
+                        lineNumber: 75,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/app/verify-registration/page.js",
+                lineNumber: 65,
+                columnNumber: 7
+            }, this)
+        ]
+    }, void 0, true, {
         fileName: "[project]/app/verify-registration/page.js",
-        lineNumber: 42,
+        lineNumber: 62,
         columnNumber: 5
     }, this);
 }
-_s(OTPForm, "LYzuf8jHChHw06TOl2UI/yXkn98=", false, function() {
+_s(OTPForm, "I73BxrvX1/C71X0cs1VbC62FaYA=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"],
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSearchParams"]
@@ -109,17 +137,56 @@ function VerifyRegPage() {
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Suspense"], {
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(OTPForm, {}, void 0, false, {
             fileName: "[project]/app/verify-registration/page.js",
-            lineNumber: 59,
+            lineNumber: 84,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/app/verify-registration/page.js",
-        lineNumber: 58,
+        lineNumber: 83,
         columnNumber: 5
     }, this);
 }
 _c1 = VerifyRegPage;
-const s = {};
+const s = {
+    container: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        backgroundColor: '#f5f5f5',
+        padding: '20px'
+    },
+    card: {
+        backgroundColor: 'white',
+        padding: '30px',
+        borderRadius: '8px',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+        width: '100%',
+        maxWidth: '400px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '15px'
+    },
+    input: {
+        padding: '12px',
+        border: '1px solid #ddd',
+        borderRadius: '4px',
+        fontSize: '16px',
+        textAlign: 'center',
+        letterSpacing: '2px'
+    },
+    btn: {
+        padding: '12px',
+        backgroundColor: '#007bff',
+        color: 'white',
+        border: 'none',
+        borderRadius: '4px',
+        fontSize: '16px',
+        cursor: 'pointer',
+        transition: 'background-color 0.3s'
+    }
+};
 var _c, _c1;
 __turbopack_context__.k.register(_c, "OTPForm");
 __turbopack_context__.k.register(_c1, "VerifyRegPage");

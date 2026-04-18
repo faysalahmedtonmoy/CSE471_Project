@@ -1,0 +1,19 @@
+{
+  "name": "ashe-pashe-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0",
+    "mongodb": "^7.1.1",
+    "mongoose": "^8.23.0",
+    "nodemailer": "^8.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "25.5.0"
+  }
+}

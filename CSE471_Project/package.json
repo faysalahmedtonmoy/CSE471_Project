@@ -1,25 +1,22 @@
 {
   "name": "ashe-pashe",
   "version": "1.0.0",
+  "description": "Ashe Pashe - Healthcare Management System",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev:frontend": "npm run dev -w frontend",
+    "dev:backend": "npm run dev -w backend",
+    "dev": "concurrently \"npm run dev -w frontend\" \"npm run dev -w backend\"",
+    "build": "npm run build -w frontend",
+    "start:frontend": "npm start -w frontend",
+    "start:backend": "npm start -w backend",
+    "lint": "npm run lint -w frontend",
+    "install-all": "npm install && npm install -w frontend && npm install -w backend"
   },
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.0",
-    "mongodb": "^7.1.1",
-    "mongoose": "^8.23.0",
-    "next": "latest",
-    "nodemailer": "^8.0.4",
-    "react": "latest",
-    "react-dom": "latest"
-  },
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "devDependencies": {
-    "@types/node": "25.5.0",
-    "@types/react": "19.2.14",
-    "typescript": "5.9.3"
+    "concurrently": "^8.2.0"
   }
 }

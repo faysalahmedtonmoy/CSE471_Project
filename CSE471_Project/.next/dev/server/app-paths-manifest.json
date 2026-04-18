@@ -1,5 +1,12 @@
 {
+  "/api/auth/complete-registration/route": "app/api/auth/complete-registration/route.js",
+  "/api/auth/profile/route": "app/api/auth/profile/route.js",
   "/api/auth/register/route": "app/api/auth/register/route.js",
+  "/api/services/route": "app/api/services/route.js",
   "/page": "app/page.js",
-  "/register/page": "app/register/page.js"
+  "/profile/page": "app/profile/page.js",
+  "/register/page": "app/register/page.js",
+  "/services/page": "app/services/page.js",
+  "/user-dashboard/page": "app/user-dashboard/page.js",
+  "/verify-registration/page": "app/verify-registration/page.js"
 }
