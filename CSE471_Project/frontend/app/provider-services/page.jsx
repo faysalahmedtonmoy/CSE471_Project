@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import jwtDecode from 'jwt-decode';
+import BackToDashboard from '../../components/BackToDashboard';
 
 export default function ProviderServicesPage() {
   const [requests, setRequests] = useState([]);
@@ -100,8 +101,8 @@ export default function ProviderServicesPage() {
 
   return (
     <div style={pageStyle}>
-      <h1 style={titleStyle}>📋 My Assigned Services</h1>
-
+      <BackToDashboard />
+      <h1 style={titleStyle}>?? My Assigned Services</h1>
       {error && (
         <div style={errorStyle}>
           <p>❌ {error}</p>
@@ -459,6 +460,7 @@ const statusButtonStyle = {
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import jwtDecode from 'jwt-decode';
+import BackToDashboard from '../../components/BackToDashboard';
 
 export default function ProviderServicesPage() {
   const [requests, setRequests] = useState([]);
@@ -911,3 +913,6 @@ const statusButtonStyle = {
   fontWeight: '500',
   transition: 'all 0.2s',
 };
+i m p o r t   B a c k T o D a s h b o a r d   f r o m   ' . . / . . / c o m p o n e n t s / B a c k T o D a s h b o a r d ' ; 
+ 
+ 

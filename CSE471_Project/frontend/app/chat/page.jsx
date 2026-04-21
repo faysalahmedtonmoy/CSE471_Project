@@ -5,6 +5,7 @@ import jwtDecode from 'jwt-decode';
 import { useRouter } from 'next/navigation';
 import Navbar from '../../components/Navbar';
 import ChatBox from '../../components/ChatBox';
+import BackToDashboard from '../../components/BackToDashboard';
 
 export default function ChatPage() {
   const router = useRouter();
@@ -92,6 +93,7 @@ export default function ChatPage() {
   return (
     <div>
       <Navbar />
+      <BackToDashboard />
       <div className="flex h-screen bg-gray-50">
         {/* Conversations Sidebar */}
         <div className="w-1/3 bg-white border-r">

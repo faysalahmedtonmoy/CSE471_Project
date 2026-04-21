@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import BackToDashboard from '../../components/BackToDashboard';
 
 export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
@@ -84,6 +85,7 @@ export default function AdminDashboard() {
           <button onClick={handleLogout} style={styles.logoutBtn}>Logout</button>
         </div>
       </nav>
+      <BackToDashboard />
 
       <div style={styles.content}>
         <h2 style={styles.title}>⚙️ Admin Control Panel</h2>

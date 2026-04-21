@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import BackToDashboard from '../../components/BackToDashboard';
 
 export default function RealEstatePage() {
   const [listings, setListings] = useState([]);
@@ -84,6 +85,7 @@ export default function RealEstatePage() {
 
   return (
     <div style={pageStyle}>
+      <BackToDashboard />
       <h1 style={titleStyle}>🏠 To-Let & Real Estate Listings</h1>
       <div style={gridStyle}>
         <section style={sectionStyle}>

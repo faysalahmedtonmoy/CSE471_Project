@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import BackToDashboard from '../../components/BackToDashboard';
 
 export default function ProfilePage() {
   const [user, setUser] = useState(null);
@@ -93,6 +94,7 @@ export default function ProfilePage() {
           <button onClick={() => router.push('/dashboard')} style={styles.backBtn}>← Back to Dashboard</button>
         </div>
       </nav>
+      <BackToDashboard />
 
       <div style={styles.content}>
         <h2 style={styles.title}>👤 Profile Management</h2>

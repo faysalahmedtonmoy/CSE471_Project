@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import HospitalSearch from '../../components/HospitalSearch';
+import BackToDashboard from '../../components/BackToDashboard';
 
 export default function ServicesPage() {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5', padding: '20px' }}>
+      <BackToDashboard />
       <HospitalSearch />
     </div>
   );

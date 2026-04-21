@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import jwtDecode from 'jwt-decode';
+import BackToDashboard from '../../components/BackToDashboard';
 
 export default function ServiceRequestsPage() {
   const [requests, setRequests] = useState([]);
@@ -98,6 +99,7 @@ export default function ServiceRequestsPage() {
 
   return (
     <div style={pageStyle}>
+      <BackToDashboard />
       <h1 style={titleStyle}>📝 Service Status Tracking</h1>
 
       {error && (

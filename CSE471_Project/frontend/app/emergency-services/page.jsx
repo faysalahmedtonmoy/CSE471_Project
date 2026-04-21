@@ -5,6 +5,7 @@ import jwtDecode from 'jwt-decode';
 import { useRouter } from 'next/navigation';
 import Navbar from '../../components/Navbar';
 import HospitalSearch from '../../components/HospitalSearch';
+import BackToDashboard from '../../components/BackToDashboard';
 
 export default function EmergencyServicesPage() {
   const router = useRouter();
@@ -65,6 +66,7 @@ export default function EmergencyServicesPage() {
   return (
     <div>
       <Navbar />
+      <BackToDashboard />
       <div className="p-6">
         <h1 className="text-3xl font-bold mb-6">Emergency Services</h1>
         
