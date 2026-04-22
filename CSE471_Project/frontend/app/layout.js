@@ -1,5 +1,6 @@
 // REMOVE THE IMPORT LINE HERE
 import NotificationSystem from '../components/NotificationSystem';
+import PushNotificationManager from '../components/PushNotificationManager';
 
 export const metadata = {
   title: "AshePashe",
@@ -10,8 +11,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <NotificationSystem />
-        {children}
+        <PushNotificationManager>
+          <NotificationSystem />
+          {children}
+        </PushNotificationManager>
       </body>
     </html>
   );

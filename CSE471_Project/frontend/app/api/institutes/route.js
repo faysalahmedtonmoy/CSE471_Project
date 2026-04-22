@@ -43,6 +43,31 @@ export async function POST(req) {
     if (!decoded) return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json();
+    
+    // Handle review submission
+    if (body.instituteId && body.rating) {
+      const institute = await Institute.findById(body.instituteId);
+      if (!institute) return NextResponse.json({ message: 'Institute not found' }, { status: 404 });
+      
+      const review = {
+        userId: decoded.userId,
+        rating: body.rating,
+        comment: body.comment,
+        createdAt: new Date()
+      };
+      
+      institute.reviews = institute.reviews || [];
+      institute.reviews.push(review);
+      
+      // Calculate new average rating
+      const totalRating = institute.reviews.reduce((sum, r) => sum + r.rating, 0);
+      institute.rating = totalRating / institute.reviews.length;
+      
+      await institute.save();
+      return NextResponse.json({ message: 'Review submitted', institute }, { status: 201 });
+    }
+    
+    // Handle new institute creation
     const instituteData = {
       userId: decoded.userId,
       name: body.name,

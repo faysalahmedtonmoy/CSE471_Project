@@ -179,9 +179,116 @@ export default function ProfilePage() {
 
         <div style={styles.savedListings}>
           <h3>📋 Saved Listings</h3>
-          <p style={styles.comingSoon}>Saved listings feature coming soon...</p>
+          <SavedListings />
         </div>
       </div>
+    </div>
+  );
+}
+
+// Saved Listings Component
+function SavedListings() {
+  const [savedListings, setSavedListings] = useState({ toLet: [], jobs: [], institutes: [], services: [] });
+  const [activeTab, setActiveTab] = useState('toLet');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    fetch('/api/saved-listings', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+    .then(res => res.json())
+    .then(data => {
+      setSavedListings(data.savedListings || { toLet: [], jobs: [], institutes: [], services: [] });
+    })
+    .catch(console.error)
+    .finally(() => setLoading(false));
+  }, []);
+
+  const handleRemove = async (listingId, type) => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      await fetch(`/api/saved-listings?listingId=${listingId}&type=${type}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setSavedListings(prev => ({
+        ...prev,
+        [type]: prev[type].filter(item => item && item._id !== listingId)
+      }));
+    } catch (error) {
+      console.error('Error removing listing:', error);
+    }
+  };
+
+  const tabs = [
+    { key: 'toLet', label: '🏠 To-Let', count: savedListings.toLet?.length || 0 },
+    { key: 'jobs', label: '💼 Jobs', count: savedListings.jobs?.length || 0 },
+    { key: 'institutes', label: '🏫 Institutes', count: savedListings.institutes?.length || 0 },
+    { key: 'services', label: '🔧 Services', count: savedListings.services?.length || 0 },
+  ];
+
+  const currentItems = savedListings[activeTab]?.filter(Boolean) || [];
+
+  if (loading) return <p>Loading saved listings...</p>;
+
+  return (
+    <div>
+      <div style={styles.tabContainer}>
+        {tabs.map(tab => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            style={{
+              ...styles.tab,
+              ...(activeTab === tab.key ? styles.activeTab : {})
+            }}
+          >
+            {tab.label} ({tab.count})
+          </button>
+        ))}
+      </div>
+
+      {currentItems.length === 0 ? (
+        <p style={styles.comingSoon}>No saved {activeTab} yet</p>
+      ) : (
+        <div style={styles.listingsGrid}>
+          {currentItems.map(item => (
+            <div key={item._id} style={styles.listingCard}>
+              <div style={styles.listingHeader}>
+                <h4 style={styles.listingTitle}>
+                  {item.title || item.name || 'Untitled'}
+                </h4>
+                <button
+                  onClick={() => handleRemove(item._id, activeTab)}
+                  style={styles.removeBtn}
+                >
+                  ✕
+                </button>
+              </div>
+              <p style={styles.listingInfo}>
+                {item.location || item.address || ''}
+              </p>
+              {item.price && (
+                <p style={styles.listingPrice}>💰 {item.price}</p>
+              )}
+              {item.jobType && (
+                <p style={styles.listingInfo}>💼 {item.jobType}</p>
+              )}
+              {item.type && activeTab === 'institutes' && (
+                <p style={styles.listingInfo}>🏫 {item.type}</p>
+              )}
+              {item.serviceType && (
+                <p style={styles.listingInfo}>🔧 {item.serviceType}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -318,5 +425,62 @@ const styles = {
     fontStyle: 'italic',
     textAlign: 'center',
     marginTop: '1rem',
+  },
+  tabContainer: {
+    display: 'flex',
+    gap: '0.5rem',
+    marginBottom: '1rem',
+    flexWrap: 'wrap',
+  },
+  tab: {
+    padding: '0.5rem 1rem',
+    border: '1px solid #ddd',
+    borderRadius: '4px',
+    backgroundColor: '#f9f9f9',
+    cursor: 'pointer',
+    fontSize: '0.875rem',
+  },
+  activeTab: {
+    backgroundColor: '#2563eb',
+    color: 'white',
+    borderColor: '#2563eb',
+  },
+  listingsGrid: {
+    display: 'grid',
+    gap: '1rem',
+  },
+  listingCard: {
+    padding: '1rem',
+    border: '1px solid #eee',
+    borderRadius: '8px',
+    backgroundColor: '#fafafa',
+  },
+  listingHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  listingTitle: {
+    margin: 0,
+    fontSize: '1rem',
+    color: '#333',
+  },
+  removeBtn: {
+    backgroundColor: 'transparent',
+    border: 'none',
+    color: '#dc2626',
+    cursor: 'pointer',
+    fontSize: '1rem',
+  },
+  listingInfo: {
+    margin: '0.25rem 0',
+    fontSize: '0.875rem',
+    color: '#666',
+  },
+  listingPrice: {
+    margin: '0.25rem 0',
+    fontSize: '0.875rem',
+    color: '#10b981',
+    fontWeight: 'bold',
   },
 };

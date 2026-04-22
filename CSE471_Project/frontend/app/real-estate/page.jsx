@@ -150,17 +150,7 @@ export default function RealEstatePage() {
         {loading ? <p>Loading listings...</p> : listings.length === 0 ? <p>No listings found.</p> : (
           <div style={cardsGridStyle}>
             {listings.map((listing) => (
-              <div key={listing._id} style={cardStyle}>
-                <h3>{listing.title}</h3>
-                <p><strong>Type:</strong> {listing.listingType}</p>
-                <p><strong>Location:</strong> {listing.location}</p>
-                <p><strong>Price:</strong> ৳{listing.price}</p>
-                <p><strong>Size:</strong> {listing.size} sq ft</p>
-                <p>{listing.description}</p>
-                <p><strong>Bedrooms:</strong> {listing.bedrooms}, <strong>Bathrooms:</strong> {listing.bathrooms}</p>
-                {listing.contactPhone && <p><strong>Phone:</strong> {listing.contactPhone}</p>}
-                {listing.contactEmail && <p><strong>Email:</strong> {listing.contactEmail}</p>}
-              </div>
+              <ListingCard key={listing._id} listing={listing} />
             ))}
           </div>
         )}
@@ -168,6 +158,72 @@ export default function RealEstatePage() {
     </div>
   );
 }
+
+// Listing Card Component with Save functionality
+function ListingCard({ listing }) {
+  const [isSaved, setIsSaved] = useState(false);
+
+  const handleSave = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Please login to save listings');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/saved-listings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          listingId: listing._id,
+          listingType: 'toLet'
+        })
+      });
+      const data = await res.json();
+      setIsSaved(data.saved);
+      alert(data.saved ? 'Listing saved!' : 'Removed from saved');
+    } catch (error) {
+      console.error('Error saving listing:', error);
+    }
+  };
+
+  return (
+    <div style={cardStyle}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+        <h3>{listing.title}</h3>
+        <button
+          onClick={handleSave}
+          style={{
+            ...saveButtonStyle,
+            backgroundColor: isSaved ? '#10b981' : '#f3f4f6',
+            color: isSaved ? 'white' : '#666',
+          }}
+        >
+          {isSaved ? '✓ Saved' : '♡ Save'}
+        </button>
+      </div>
+      <p><strong>Type:</strong> {listing.listingType}</p>
+      <p><strong>Location:</strong> {listing.location}</p>
+      <p><strong>Price:</strong> ৳{listing.price}</p>
+      <p><strong>Size:</strong> {listing.size} sq ft</p>
+      <p>{listing.description}</p>
+      <p><strong>Bedrooms:</strong> {listing.bedrooms}, <strong>Bathrooms:</strong> {listing.bathrooms}</p>
+      {listing.contactPhone && <p><strong>Phone:</strong> {listing.contactPhone}</p>}
+      {listing.contactEmail && <p><strong>Email:</strong> {listing.contactEmail}</p>}
+    </div>
+  );
+}
+
+const saveButtonStyle = {
+  padding: '0.25rem 0.75rem',
+  border: 'none',
+  borderRadius: '4px',
+  cursor: 'pointer',
+  fontSize: '0.875rem',
+};
 
 const pageStyle = {
   padding: '30px',
