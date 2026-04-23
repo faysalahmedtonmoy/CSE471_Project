@@ -29,7 +29,25 @@ export async function GET(req) {
         { providerId: decoded.userId }
       ]
     }).sort({ createdAt: -1 });
-    return NextResponse.json({ requests });
+
+    const requestsWithConversation = await Promise.all(requests.map(async (request) => {
+      const conversation = await Conversation.findOne({
+        participants: {
+          $all: [
+            { $elemMatch: { userId: request.userId } },
+            { $elemMatch: { userId: request.providerId } }
+          ]
+        },
+        conversationType: 'service_inquiry'
+      }).select('_id').lean();
+
+      return {
+        ...request.toObject(),
+        conversationId: conversation?._id
+      };
+    }));
+
+    return NextResponse.json({ requests: requestsWithConversation });
   } catch (error) {
     console.error('ServiceRequests GET error:', error);
     return NextResponse.json({ message: 'Unable to load service requests' }, { status: 500 });
@@ -160,12 +178,13 @@ export async function POST(req) {
           userName: user.name,
           serviceType: body.serviceType,
           appointmentDate: body.appointmentDate,
-          description: body.description
+          description: body.description,
+          conversationId: conversation._id
         });
       });
     }
 
-    return NextResponse.json({ request: newRequest }, { status: 201 });
+    return NextResponse.json({ request: { ...newRequest.toObject(), conversationId: conversation._id } }, { status: 201 });
   } catch (error) {
     console.error('ServiceRequests POST error:', error);
     return NextResponse.json({ message: 'Unable to create service request' }, { status: 500 });

@@ -193,6 +193,12 @@ export default function ProviderDashboard() {
                   View All Requests
                 </button>
                 <button 
+                  onClick={() => router.push(`/chat?conversation=${newRequestNotification.conversationId}`)}
+                  style={styles.chatBtn}
+                >
+                  💬 Chat
+                </button>
+                <button 
                   onClick={() => setNewRequestNotification(null)}
                   style={styles.dismissBtn}
                 >
@@ -291,6 +297,17 @@ export default function ProviderDashboard() {
               style={styles.cardBtn}
             >
               View Requests
+            </button>
+          </div>
+
+          <div style={styles.card}>
+            <h3>💬 Chat & Support</h3>
+            <p>Connect with users and manage service conversations</p>
+            <button
+              onClick={() => router.push('/chat')}
+              style={styles.cardBtn}
+            >
+              Open Chat
             </button>
           </div>
 
@@ -509,6 +526,16 @@ const styles = {
   viewRequestsBtn: {
     padding: '8px 16px',
     backgroundColor: '#27ae60',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: 'bold',
+  },
+  chatBtn: {
+    padding: '8px 16px',
+    backgroundColor: '#2980b9',
     color: 'white',
     border: 'none',
     borderRadius: '5px',
