@@ -7,11 +7,17 @@ import { initializeSocket } from './lib/socket.js';
 import fileUpload from 'express-fileupload';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
-dotenv.config();
+import { authenticateToken } from './controllers/authController.js';
+import messageRoutes from './routes/message.js';
+import notificationRoutes from './routes/notifications.js';
+import conversationRoutes from './routes/conversations.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, '.env') });
+
+console.log('MONGODB_URI:', process.env.MONGODB_URI); // Debug log
 
 const app = express();
 const server = createServer(app);
@@ -31,6 +37,11 @@ app.use(fileUpload({
   useTempFiles: true,
   tempFileDir: '/tmp/'
 }));
+
+// Routes
+app.use('/api/message', authenticateToken, messageRoutes);
+app.use('/api/notifications', authenticateToken, notificationRoutes);
+app.use('/api/conversations', authenticateToken, conversationRoutes);
 
 // File upload endpoint
 app.post('/api/upload', (req, res) => {

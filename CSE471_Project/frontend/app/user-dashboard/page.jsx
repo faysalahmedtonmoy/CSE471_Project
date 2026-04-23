@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { io } from 'socket.io-client';
 import ProviderSearch from '../../components/ProviderSearch';
 
 export default function UserDashboard() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [socket, setSocket] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -40,6 +42,40 @@ export default function UserDashboard() {
       router.push('/login');
     })
     .finally(() => setLoading(false));
+
+    // Initialize socket connection for real-time updates
+    const socketConnection = io(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000', {
+      auth: { token }
+    });
+
+    socketConnection.on('connect', () => {
+      console.log('User connected to chat server');
+      socketConnection.emit('join_conversations');
+    });
+
+    // Listen for provider responses to service requests
+    socketConnection.on('new_message', (message) => {
+      // Refresh the dashboard to show updated request status
+      if (message.content && (message.content.includes('accepted') || message.content.includes('declined'))) {
+        // Refresh user profile to get updated service requests
+        fetch('/api/auth/profile', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.user) {
+            setUser(data.user);
+          }
+        })
+        .catch(console.error);
+      }
+    });
+
+    setSocket(socketConnection);
+
+    return () => {
+      socketConnection.disconnect();
+    };
   }, []);
 
   const handleLogout = () => {

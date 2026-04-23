@@ -8,6 +8,8 @@ import Notification from '../models/Notification.js';
 const onlineUsers = new Map(); // userId -> socketId
 const typingUsers = new Map(); // conversationId -> Set of userIds
 
+let ioInstance = null;
+
 export const initializeSocket = (server) => {
   const io = new Server(server, {
     cors: {
@@ -15,6 +17,8 @@ export const initializeSocket = (server) => {
       methods: ["GET", "POST"]
     }
   });
+
+  ioInstance = io;
 
   // Middleware for authentication
   io.use(async (socket, next) => {
@@ -247,3 +251,5 @@ export const initializeSocket = (server) => {
 
   return io;
 };
+
+export const getIO = () => ioInstance;
