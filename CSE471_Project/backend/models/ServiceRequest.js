@@ -12,6 +12,19 @@ const ServiceRequestSchema = new mongoose.Schema(
       enum: ['pending', 'in progress', 'completed', 'cancelled'],
       default: 'pending',
     },
+    // Provider acceptance tracking
+    providerAccepted: { 
+      type: Boolean, 
+      default: null  // null = pending decision, true = accepted, false = declined
+    },
+    providerResponse: { 
+      type: String, 
+      default: ''  // Optional message from provider when declining
+    },
+    providerRespondedAt: { 
+      type: Date, 
+      default: null
+    },
     rating: { type: Number, min: 0, max: 5, default: null },
     review: { type: String, default: '' },
   },

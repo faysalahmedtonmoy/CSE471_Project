@@ -33,6 +33,34 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Get messages for a specific conversation
+router.get('/:conversationId', async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { conversationId } = req.params;
+
+    // Verify user is part of the conversation
+    const conversation = await Conversation.findOne({
+      _id: conversationId,
+      'participants.userId': userId
+    });
+
+    if (!conversation) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const messages = await Message.find({ conversationId })
+      .populate('senderId', 'name email')
+      .populate('receiverId', 'name email')
+      .sort({ createdAt: 1 });
+
+    res.json({ messages });
+  } catch (error) {
+    console.error('Messages GET error:', error);
+    res.status(500).json({ message: 'Unable to load messages' });
+  }
+});
+
 // Create new conversation or send message
 router.post('/', async (req, res) => {
   try {

@@ -1,19 +1,22 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import jwtDecode from 'jwt-decode';
-import { useRouter } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { io } from 'socket.io-client';
 import Navbar from '../../components/Navbar';
 import ChatBox from '../../components/ChatBox';
 import BackToDashboard from '../../components/BackToDashboard';
 
 export default function ChatPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState(null);
   const [showChatBox, setShowChatBox] = useState(false);
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -26,6 +29,35 @@ export default function ChatPage() {
       const decoded = jwtDecode(token);
       setUserId(decoded.userId);
       fetchConversations();
+
+      const providerId = searchParams.get('provider');
+      if (providerId) {
+        startConversationWithProvider(providerId);
+      }
+
+      const socketConnection = io(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000', {
+        auth: { token }
+      });
+
+      socketConnection.on('unread_count_update', (data) => {
+        setConversations(prev => prev.map(conv => 
+          conv._id === data.conversationId 
+            ? { ...conv, unreadCount: data.count }
+            : conv
+        ));
+      });
+
+      // Listen for new messages (to refresh conversation list)
+      socketConnection.on('new_message', (message) => {
+        // Refresh conversations to show updated last message
+        fetchConversations();
+      });
+
+      setSocket(socketConnection);
+
+      return () => {
+        socketConnection.disconnect();
+      };
     } catch (error) {
       console.error('Token decode error:', error);
       router.push('/login');
@@ -51,6 +83,39 @@ export default function ChatPage() {
     }
   };
 
+  const startConversationWithProvider = async (providerId) => {
+    if (!providerId) return;
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      const response = await fetch('/api/message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          receiverId: providerId,
+          content: 'Hi! I would like to chat about your service.'
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Start conversation error:', errorData);
+        return;
+      }
+
+      const data = await response.json();
+      setSelectedConversation(data.conversation);
+      setShowChatBox(true);
+      fetchConversations();
+    } catch (error) {
+      console.error('Error starting conversation:', error);
+    }
+  };
+
   const handleConversationSelect = (conversation) => {
     setSelectedConversation(conversation);
     setShowChatBox(true);
@@ -62,7 +127,17 @@ export default function ChatPage() {
   };
 
   const getOtherParticipant = (conversation) => {
-    return conversation.participants.find(p => p.userId._id !== userId);
+    const other = conversation.participants.find(p => {
+      const participantId = p.userId?._id ? p.userId._id.toString() : p.userId?.toString();
+      return participantId !== userId;
+    });
+
+    if (!other) return null;
+
+    return {
+      ...other,
+      userId: other.userId?._id ? other.userId._id.toString() : other.userId?.toString()
+    };
   };
 
   const formatTime = (date) => {

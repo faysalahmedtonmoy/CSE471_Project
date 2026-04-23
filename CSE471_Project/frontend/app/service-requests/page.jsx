@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import jwtDecode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
+import { io } from 'socket.io-client';
 import BackToDashboard from '../../components/BackToDashboard';
 
 export default function ServiceRequestsPage() {
@@ -13,6 +14,7 @@ export default function ServiceRequestsPage() {
   const [currentUserId, setCurrentUserId] = useState(null);
   const [updating, setUpdating] = useState({});
   const [error, setError] = useState('');
+  const [socket, setSocket] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -26,6 +28,37 @@ export default function ServiceRequestsPage() {
       const decoded = jwtDecode(token);
       setCurrentUserId(decoded.userId);
       fetchRequests();
+
+      // Initialize socket connection for real-time updates
+      const socketConnection = io(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000', {
+        auth: { token }
+      });
+
+      socketConnection.on('connect', () => {
+        console.log('Service requests page connected to chat server');
+        socketConnection.emit('join_conversations');
+      });
+
+      // Listen for new service requests (for providers)
+      socketConnection.on('new_service_request', (requestData) => {
+        console.log('New service request received on requests page:', requestData);
+        // Refresh the requests list
+        fetchRequests();
+      });
+
+      // Listen for provider responses (for users)
+      socketConnection.on('new_message', (message) => {
+        // If this is a system message about provider response, refresh
+        if (message.content && (message.content.includes('accepted') || message.content.includes('declined'))) {
+          fetchRequests();
+        }
+      });
+
+      setSocket(socketConnection);
+
+      return () => {
+        socketConnection.disconnect();
+      };
     } catch (err) {
       console.error('Failed to decode token:', err);
       localStorage.removeItem('token');
@@ -95,6 +128,30 @@ export default function ServiceRequestsPage() {
     await updateRequest(requestId, { status: newStatus });
   };
 
+  const handleProviderResponse = async (requestId, accepted, reason = '') => {
+    const token = localStorage.getItem('token');
+    setUpdating({ ...updating, [requestId]: true });
+
+    const res = await fetch(`/api/service-requests/${requestId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({
+        providerAccepted: accepted,
+        providerResponse: reason,
+      }),
+    });
+
+    const data = await res.json();
+    setUpdating({ ...updating, [requestId]: false });
+
+    if (res.ok) {
+      alert(accepted ? '✅ Booking accepted!' : '❌ Booking declined!');
+      fetchRequests();
+    } else {
+      alert(data.message || 'Unable to update booking response');
+    }
+  };
+
   const isProvider = (request) => request.providerId === currentUserId;
 
   return (
@@ -131,6 +188,80 @@ export default function ServiceRequestsPage() {
               <p><strong>Appointment:</strong> {new Date(request.appointmentDate).toLocaleString()}</p>
               <p><strong>Description:</strong> {request.description || 'N/A'}</p>
               <p><strong>Created:</strong> {new Date(request.createdAt).toLocaleString()}</p>
+
+              {/* Provider Response Section - Only for Providers with pending acceptance */}
+              {isProvider(request) && request.providerAccepted === null && (
+                <div style={providerResponseBoxStyle}>
+                  <p style={{ fontWeight: 'bold', marginBottom: '15px', color: '#1f2937' }}>
+                    📌 Do you accept this booking?
+                  </p>
+                  <div style={acceptDeclineButtonsStyle}>
+                    <button
+                      onClick={() => handleProviderResponse(request._id, true)}
+                      disabled={updating[request._id]}
+                      style={{
+                        ...acceptButtonStyle,
+                      }}
+                    >
+                      ✅ Accept Booking
+                    </button>
+                    <button
+                      onClick={() => {
+                        const reason = prompt('Do you want to provide a reason for declining? (optional)');
+                        handleProviderResponse(request._id, false, reason || '');
+                      }}
+                      disabled={updating[request._id]}
+                      style={{
+                        ...declineButtonStyle,
+                      }}
+                    >
+                      ❌ Decline Booking
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Show Provider Response Status */}
+              {isProvider(request) && request.providerAccepted !== null && (
+                <div style={{
+                  ...providerResponseBoxStyle,
+                  backgroundColor: request.providerAccepted ? '#ecfdf5' : '#fef2f2',
+                  borderColor: request.providerAccepted ? '#bbf7d0' : '#fecaca',
+                }}>
+                  <p style={{ fontWeight: 'bold', marginBottom: '5px' }}>
+                    {request.providerAccepted ? '✅ You accepted this booking' : '❌ You declined this booking'}
+                  </p>
+                  <p style={{ fontSize: '12px', color: '#666' }}>
+                    On {new Date(request.providerRespondedAt).toLocaleString()}
+                  </p>
+                  {request.providerResponse && (
+                    <p style={{ fontSize: '14px', marginTop: '8px', color: '#555' }}>
+                      <strong>Reason:</strong> {request.providerResponse}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Show User View of Provider Response */}
+              {!isProvider(request) && request.providerAccepted !== null && (
+                <div style={{
+                  ...providerResponseBoxStyle,
+                  backgroundColor: request.providerAccepted ? '#ecfdf5' : '#fef2f2',
+                  borderColor: request.providerAccepted ? '#bbf7d0' : '#fecaca',
+                }}>
+                  <p style={{ fontWeight: 'bold', marginBottom: '5px' }}>
+                    {request.providerAccepted ? '✅ Provider accepted your request' : '❌ Provider declined your request'}
+                  </p>
+                  <p style={{ fontSize: '12px', color: '#666' }}>
+                    On {new Date(request.providerRespondedAt).toLocaleString()}
+                  </p>
+                  {request.providerResponse && (
+                    <p style={{ fontSize: '14px', marginTop: '8px', color: '#555' }}>
+                      <strong>Reason:</strong> {request.providerResponse}
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Status Update Section - Only for Providers */}
               {isProvider(request) && (
@@ -351,4 +482,46 @@ const buttonStyle = {
   fontSize: '14px',
   fontWeight: '500',
   marginTop: '5px',
+};
+
+const providerResponseBoxStyle = {
+  marginTop: '15px',
+  padding: '15px',
+  backgroundColor: '#fef3c7',
+  borderRadius: '8px',
+  border: '1px solid #fcd34d',
+};
+
+const acceptDeclineButtonsStyle = {
+  display: 'flex',
+  gap: '12px',
+  flexWrap: 'wrap',
+};
+
+const acceptButtonStyle = {
+  padding: '12px 18px',
+  backgroundColor: '#10b981',
+  color: '#fff',
+  border: 'none',
+  borderRadius: '8px',
+  cursor: 'pointer',
+  fontSize: '14px',
+  fontWeight: '500',
+  flex: '1',
+  minWidth: '150px',
+  transition: 'all 0.2s',
+};
+
+const declineButtonStyle = {
+  padding: '12px 18px',
+  backgroundColor: '#ef4444',
+  color: '#fff',
+  border: 'none',
+  borderRadius: '8px',
+  cursor: 'pointer',
+  fontSize: '14px',
+  fontWeight: '500',
+  flex: '1',
+  minWidth: '150px',
+  transition: 'all 0.2s',
 };

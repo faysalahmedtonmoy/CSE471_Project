@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { io } from 'socket.io-client';
 
 export default function ProviderDashboard() {
   const [user, setUser] = useState(null);
@@ -9,6 +10,8 @@ export default function ProviderDashboard() {
   const [editingSkills, setEditingSkills] = useState(false);
   const [skills, setSkills] = useState('');
   const [updating, setUpdating] = useState(false);
+  const [socket, setSocket] = useState(null);
+  const [newRequestNotification, setNewRequestNotification] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -43,6 +46,62 @@ export default function ProviderDashboard() {
       router.push('/login');
     })
     .finally(() => setLoading(false));
+
+    // Initialize socket connection for real-time updates
+    const socketConnection = io(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000', {
+      auth: { token }
+    });
+
+    socketConnection.on('connect', () => {
+      console.log('Provider connected to chat server');
+      socketConnection.emit('join_conversations');
+    });
+
+    // Listen for new service requests
+    socketConnection.on('new_service_request', (requestData) => {
+      console.log('New service request received:', requestData);
+      // Show notification banner
+      setNewRequestNotification(requestData);
+      
+      // Auto-hide notification after 10 seconds
+      setTimeout(() => setNewRequestNotification(null), 10000);
+
+      // Show a browser notification if supported
+      if (typeof window !== 'undefined' && 'Notification' in window) {
+        if (Notification.permission === 'granted') {
+          new Notification(`New Service Request from ${requestData.userName}`, {
+            body: `${requestData.serviceType} - ${new Date(requestData.appointmentDate).toLocaleString()}`,
+            icon: '/favicon.ico'
+          });
+        } else if (Notification.permission !== 'denied') {
+          Notification.requestPermission();
+        }
+      }
+
+      // Refresh user profile to get updated service requests
+      fetch('/api/auth/profile', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.user) {
+          setUser(data.user);
+        }
+      })
+      .catch(console.error);
+    });
+
+    // Also listen for new messages (for chat updates)
+    socketConnection.on('new_message', (message) => {
+      // This handles regular chat messages
+      console.log('New message received:', message);
+    });
+
+    setSocket(socketConnection);
+
+    return () => {
+      socketConnection.disconnect();
+    };
   }, []);
 
   const handleLogout = () => {
@@ -113,6 +172,37 @@ export default function ProviderDashboard() {
       </nav>
 
       <div style={styles.content}>
+        {/* New Request Notification Banner */}
+        {newRequestNotification && (
+          <div style={styles.notificationBanner}>
+            <div style={styles.notificationContent}>
+              <h4 style={styles.notificationTitle}>🔔 New Service Request!</h4>
+              <p style={styles.notificationMessage}>
+                <strong>{newRequestNotification.userName}</strong> requested <strong>{newRequestNotification.serviceType}</strong>
+                <br />
+                📅 {new Date(newRequestNotification.appointmentDate).toLocaleString()}
+                {newRequestNotification.description && (
+                  <><br />📝 {newRequestNotification.description}</>
+                )}
+              </p>
+              <div style={styles.notificationActions}>
+                <button 
+                  onClick={() => router.push('/service-requests')}
+                  style={styles.viewRequestsBtn}
+                >
+                  View All Requests
+                </button>
+                <button 
+                  onClick={() => setNewRequestNotification(null)}
+                  style={styles.dismissBtn}
+                >
+                  ✕ Dismiss
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <h2 style={styles.pageTitle}>Provider Dashboard</h2>
 
         <div style={styles.infoCard}>
@@ -194,10 +284,10 @@ export default function ProviderDashboard() {
           </div>
 
           <div style={styles.card}>
-            <h3>📞 Incoming Requests</h3>
+            <h3>📞 Incoming Requests {user.pendingRequestsCount > 0 && <span style={styles.requestBadge}>{user.pendingRequestsCount}</span>}</h3>
             <p>Manage emergency requests and respond to user inquiries</p>
             <button
-              onClick={() => router.push('/chat')}
+              onClick={() => router.push('/service-requests')}
               style={styles.cardBtn}
             >
               View Requests
@@ -384,5 +474,65 @@ const styles = {
     marginTop: '10px',
     fontSize: '12px',
     color: '#e74c3c',
+  },
+  notificationBanner: {
+    backgroundColor: '#fff3cd',
+    border: '1px solid #ffeaa7',
+    borderRadius: '8px',
+    padding: '20px',
+    marginBottom: '30px',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+    animation: 'slideIn 0.5s ease-out',
+  },
+  notificationContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '15px',
+  },
+  notificationTitle: {
+    margin: 0,
+    color: '#856404',
+    fontSize: '18px',
+    fontWeight: 'bold',
+  },
+  notificationMessage: {
+    margin: 0,
+    color: '#856404',
+    fontSize: '14px',
+    lineHeight: '1.5',
+  },
+  notificationActions: {
+    display: 'flex',
+    gap: '10px',
+    alignItems: 'center',
+  },
+  viewRequestsBtn: {
+    padding: '8px 16px',
+    backgroundColor: '#27ae60',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: 'bold',
+  },
+  dismissBtn: {
+    padding: '8px 12px',
+    backgroundColor: 'transparent',
+    color: '#856404',
+    border: '1px solid #856404',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: 'bold',
+  },
+  requestBadge: {
+    backgroundColor: '#e74c3c',
+    color: 'white',
+    borderRadius: '50%',
+    padding: '2px 8px',
+    fontSize: '12px',
+    fontWeight: 'bold',
+    marginLeft: '8px',
   },
 };
