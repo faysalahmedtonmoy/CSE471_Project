@@ -87,6 +87,12 @@ export default function ProviderServicesPage() {
     }
   };
 
+  const handleChatClick = (conversationId) => {
+    if (conversationId) {
+      router.push(`/chat?conversation=${conversationId}`);
+    }
+  };
+
   const filteredRequests = filterStatus === 'all'
     ? requests
     : requests.filter(r => r.status === filterStatus);
@@ -99,10 +105,14 @@ export default function ProviderServicesPage() {
     cancelled: requests.filter(r => r.status === 'cancelled').length,
   };
 
+  const handleChatClick = (conversationId) => {
+    router.push(`/chat?conversation=${conversationId}`);
+  };
+
   return (
     <div style={pageStyle}>
       <BackToDashboard />
-      <h1 style={titleStyle}>?? My Assigned Services</h1>
+      <h1 style={titleStyle}>📋 My Assigned Services</h1>
       {error && (
         <div style={errorStyle}>
           <p>❌ {error}</p>
@@ -290,6 +300,16 @@ export default function ProviderServicesPage() {
                       ? 'Cancelling...'
                       : 'Cancel'}
                   </button>
+                  <button
+                    onClick={() => handleChatClick(request.conversationId)}
+                    style={{
+                      ...statusButtonStyle,
+                      backgroundColor: '#2563eb',
+                      marginLeft: 'auto',
+                    }}
+                  >
+                    💬 Chat
+                  </button>
                 </div>
               </div>
             </div>
@@ -455,49 +475,7 @@ const statusButtonStyle = {
   fontSize: '14px',
   fontWeight: '500',
   transition: 'all 0.2s',
-};'use client';
-
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import jwtDecode from 'jwt-decode';
-import BackToDashboard from '../../components/BackToDashboard';
-
-export default function ProviderServicesPage() {
-  const [requests, setRequests] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [currentUserId, setCurrentUserId] = useState(null);
-  const [updating, setUpdating] = useState({});
-  const [filterStatus, setFilterStatus] = useState('all');
-  const [error, setError] = useState('');
-  const router = useRouter();
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-
-    try {
-      const decoded = jwtDecode(token);
-      setCurrentUserId(decoded.userId);
-      fetchRequests();
-    } catch (err) {
-      console.error('Failed to decode token:', err);
-      localStorage.removeItem('token');
-      router.push('/login');
-    }
-  }, []);
-
-  const fetchRequests = async () => {
-    setLoading(true);
-    setError('');
-    const token = localStorage.getItem('token');
-    
-    try {
-      const res = await fetch('/api/service-requests', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+};
       
       if (res.status === 401) {
         localStorage.removeItem('token');

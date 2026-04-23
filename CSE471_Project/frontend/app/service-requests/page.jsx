@@ -154,6 +154,15 @@ export default function ServiceRequestsPage() {
 
   const isProvider = (request) => request.providerId === currentUserId;
 
+  const getChatUrl = (request) => {
+    const conversationId = request.conversationId;
+    const participantId = isProvider(request) ? request.userId : request.providerId;
+    if (conversationId) {
+      return `/chat?conversation=${conversationId}`;
+    }
+    return `/chat?participant=${participantId}`;
+  };
+
   return (
     <div style={pageStyle}>
       <BackToDashboard />
@@ -188,6 +197,13 @@ export default function ServiceRequestsPage() {
               <p><strong>Appointment:</strong> {new Date(request.appointmentDate).toLocaleString()}</p>
               <p><strong>Description:</strong> {request.description || 'N/A'}</p>
               <p><strong>Created:</strong> {new Date(request.createdAt).toLocaleString()}</p>
+
+              <button
+                style={buttonStyle}
+                onClick={() => router.push(getChatUrl(request))}
+              >
+                💬 Open Chat
+              </button>
 
               {/* Provider Response Section - Only for Providers with pending acceptance */}
               {isProvider(request) && request.providerAccepted === null && (

@@ -19,51 +19,64 @@ export default function ChatPage() {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-
-    try {
-      const decoded = jwtDecode(token);
-      setUserId(decoded.userId);
-      fetchConversations();
-
-      const providerId = searchParams.get('provider');
-      if (providerId) {
-        startConversationWithProvider(providerId);
+    const init = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        router.push('/login');
+        return;
       }
 
-      const socketConnection = io(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000', {
-        auth: { token }
-      });
+      try {
+        const decoded = jwtDecode(token);
+        setUserId(decoded.userId);
 
-      socketConnection.on('unread_count_update', (data) => {
-        setConversations(prev => prev.map(conv => 
-          conv._id === data.conversationId 
-            ? { ...conv, unreadCount: data.count }
-            : conv
-        ));
-      });
+        const conversationId = searchParams.get('conversation');
+        const participantId = searchParams.get('participant') || searchParams.get('provider');
 
-      // Listen for new messages (to refresh conversation list)
-      socketConnection.on('new_message', (message) => {
-        // Refresh conversations to show updated last message
-        fetchConversations();
-      });
+        const conversations = await fetchConversations();
 
-      setSocket(socketConnection);
+        if (conversationId) {
+          const existingConversation = conversations.find(conv => conv._id === conversationId);
+          if (existingConversation) {
+            setSelectedConversation(existingConversation);
+            setShowChatBox(true);
+          }
+        } else if (participantId) {
+          startConversationWithParticipant(participantId);
+        }
 
-      return () => {
-        socketConnection.disconnect();
-      };
-    } catch (error) {
-      console.error('Token decode error:', error);
-      router.push('/login');
-      return;
-    }
+        const socketConnection = io(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000', {
+          auth: { token }
+        });
+
+        socketConnection.on('unread_count_update', (data) => {
+          setConversations(prev => prev.map(conv => 
+            conv._id === data.conversationId 
+              ? { ...conv, unreadCount: data.count }
+              : conv
+          ));
+        });
+
+        // Listen for new messages (to refresh conversation list)
+        socketConnection.on('new_message', (message) => {
+          fetchConversations();
+        });
+
+        setSocket(socketConnection);
+
+        return () => {
+          socketConnection.disconnect();
+        };
+      } catch (error) {
+        console.error('Token decode error:', error);
+        router.push('/login');
+        return;
+      }
+    };
+
+    init();
   }, []);
+
 
   const fetchConversations = async () => {
     try {
@@ -75,16 +88,18 @@ export default function ChatPage() {
       if (response.ok) {
         const data = await response.json();
         setConversations(data.conversations || []);
+        return data.conversations || [];
       }
     } catch (error) {
       console.error('Error fetching conversations:', error);
     } finally {
       setLoading(false);
     }
+    return [];
   };
 
-  const startConversationWithProvider = async (providerId) => {
-    if (!providerId) return;
+  const startConversationWithParticipant = async (participantId) => {
+    if (!participantId) return;
     const token = localStorage.getItem('token');
     if (!token) return;
 
@@ -96,8 +111,8 @@ export default function ChatPage() {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          receiverId: providerId,
-          content: 'Hi! I would like to chat about your service.'
+          receiverId: participantId,
+          content: 'Hi! I would like to chat with you.'
         })
       });
 
