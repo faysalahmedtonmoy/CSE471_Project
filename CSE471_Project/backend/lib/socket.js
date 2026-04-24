@@ -162,6 +162,14 @@ export const initializeSocket = (server) => {
       }
     });
 
+    // Notify provider of new service request
+    socket.on('notify_new_service_request', (data) => {
+      const providerSocketId = onlineUsers.get(data.providerId.toString());
+      if (providerSocketId) {
+        io.to(providerSocketId).emit('new_service_request', data);
+      }
+    });
+
     // Typing indicators
     socket.on('typing_start', (data) => {
       const { conversationId } = data;

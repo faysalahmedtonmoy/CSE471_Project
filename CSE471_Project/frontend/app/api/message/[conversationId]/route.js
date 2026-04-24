@@ -10,7 +10,7 @@ export async function GET(req, { params }) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    const { conversationId } = params;
+    const { conversationId } = await params;
 
     const response = await fetch(`${BACKEND_URL}/api/message/${conversationId}`, {
       headers: { 'Authorization': token }
