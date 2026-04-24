@@ -17,6 +17,7 @@ export default function ChatPage() {
   const [userId, setUserId] = useState(null);
   const [showChatBox, setShowChatBox] = useState(false);
   const [socket, setSocket] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const init = async () => {
@@ -151,7 +152,8 @@ export default function ChatPage() {
 
     return {
       ...other,
-      userId: other.userId?._id ? other.userId._id.toString() : other.userId?.toString()
+      userId: other.userId?._id ? other.userId._id.toString() : other.userId?.toString(),
+      name: other.userId?.name
     };
   };
 
@@ -171,91 +173,127 @@ export default function ChatPage() {
 
   if (loading) {
     return (
-      <div>
+      <div className="min-h-screen bg-gray-50 flex flex-col">
         <Navbar />
-        <div className="p-6 flex items-center justify-center min-h-screen">
-          <div className="text-gray-500">Loading conversations...</div>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="flex flex-col items-center">
+            <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <div className="text-gray-500 font-medium">Loading messages...</div>
+          </div>
         </div>
       </div>
     );
   }
 
+  const filteredConversations = conversations.filter(conv => {
+    const otherParticipant = getOtherParticipant(conv);
+    return otherParticipant?.name?.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
   return (
-    <div>
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
-      <BackToDashboard />
-      <div className="flex h-screen bg-gray-50">
+      
+      <div className="flex-1 max-w-7xl w-full mx-auto p-4 flex h-[calc(100vh-80px)] overflow-hidden">
         {/* Conversations Sidebar */}
-        <div className="w-1/3 bg-white border-r">
-          <div className="p-4 border-b">
-            <h1 className="text-2xl font-bold">Messages</h1>
+        <div className="w-full md:w-[380px] bg-white border border-gray-200 rounded-l-2xl shadow-sm flex flex-col z-10 flex-shrink-0">
+          <div className="p-4 border-b border-gray-100 flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <h1 className="text-2xl font-bold text-gray-800">Messages</h1>
+              <div className="bg-blue-100 text-blue-600 px-2.5 py-1 rounded-full text-sm font-bold">
+                {conversations.length}
+              </div>
+            </div>
+            
+            {/* Search Bar */}
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <input
+                type="text"
+                placeholder="Search conversations..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              />
+            </div>
           </div>
 
-          <div className="overflow-y-auto h-full">
-            {conversations.length === 0 ? (
-              <div className="p-6 text-center text-gray-500">
-                <p>No conversations yet</p>
+          <div className="overflow-y-auto flex-1 h-full custom-scrollbar">
+            {filteredConversations.length === 0 ? (
+              <div className="p-8 text-center text-gray-500 flex flex-col items-center justify-center h-full">
+                <svg className="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                <p className="text-lg font-medium text-gray-600">No conversations</p>
                 <p className="text-sm mt-2">Start chatting from service listings!</p>
               </div>
             ) : (
-              conversations.map((conversation) => {
+              filteredConversations.map((conversation) => {
                 const otherParticipant = getOtherParticipant(conversation);
                 return (
                   <div
                     key={conversation._id}
                     onClick={() => handleConversationSelect(conversation)}
-                    className={`p-4 border-b cursor-pointer hover:bg-gray-50 ${
-                      selectedConversation?._id === conversation._id ? 'bg-blue-50' : ''
+                    className={`p-4 border-b border-gray-50 cursor-pointer transition-colors ${
+                      selectedConversation?._id === conversation._id 
+                        ? 'bg-blue-50/80 border-l-4 border-l-blue-500' 
+                        : 'hover:bg-gray-50 border-l-4 border-l-transparent'
                     }`}
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="flex-shrink-0">
-                        <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                          <span className="text-sm font-medium">
-                            {otherParticipant?.userId?.name?.charAt(0)?.toUpperCase() || '?'}
-                          </span>
+                      <div className="relative flex-shrink-0">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold ${
+                          selectedConversation?._id === conversation._id ? 'bg-blue-200 text-blue-700' : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          {otherParticipant?.name?.charAt(0)?.toUpperCase() || '?'}
                         </div>
+                        <div className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-white ${
+                          otherParticipant?.isOnline ? 'bg-green-500' : 'bg-gray-300'
+                        }`}></div>
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm font-medium text-gray-900 truncate">
-                            {otherParticipant?.userId?.name || 'Unknown User'}
+                        <div className="flex items-center justify-between mb-0.5">
+                          <p className="text-[15px] font-semibold text-gray-900 truncate">
+                            {otherParticipant?.name || 'Unknown User'}
                           </p>
-                          <div className="flex items-center space-x-1">
+                          <div className="flex items-center space-x-2">
                             {conversation.lastMessage && (
-                              <p className="text-xs text-gray-500">
+                              <p className={`text-xs ${conversation.unreadCount > 0 ? 'text-blue-600 font-bold' : 'text-gray-400'}`}>
                                 {formatTime(conversation.lastMessage.timestamp)}
                               </p>
-                            )}
-                            {conversation.unreadCount > 0 && (
-                              <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-medium text-white bg-red-500 rounded-full">
-                                {conversation.unreadCount}
-                              </span>
                             )}
                           </div>
                         </div>
 
-                        {conversation.lastMessage && (
-                          <p className="text-sm text-gray-500 truncate">
-                            {conversation.lastMessage.content}
-                          </p>
-                        )}
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1 truncate mr-2">
+                            {conversation.lastMessage ? (
+                              <p className={`text-sm truncate ${conversation.unreadCount > 0 ? 'font-semibold text-gray-800' : 'text-gray-500'}`}>
+                                {conversation.lastMessage.senderId === userId ? 'You: ' : ''}
+                                {conversation.lastMessage.content || 'Sent an attachment'}
+                              </p>
+                            ) : (
+                              <p className="text-sm text-gray-400 italic">No messages yet</p>
+                            )}
+                          </div>
+                          
+                          {conversation.unreadCount > 0 && (
+                            <span className="flex-shrink-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-blue-500 rounded-full shadow-sm">
+                              {conversation.unreadCount}
+                            </span>
+                          )}
+                        </div>
 
                         {conversation.serviceContext && (
-                          <p className="text-xs text-blue-600 mt-1">
-                            💼 {conversation.serviceContext.serviceTitle}
-                          </p>
+                          <div className="mt-1.5 flex items-center">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-800">
+                              💼 {conversation.serviceContext.serviceTitle}
+                            </span>
+                          </div>
                         )}
-
-                        <div className="flex items-center mt-1">
-                          <div className={`w-2 h-2 rounded-full mr-2 ${
-                            otherParticipant?.isOnline ? 'bg-green-500' : 'bg-gray-400'
-                          }`}></div>
-                          <span className="text-xs text-gray-500">
-                            {otherParticipant?.isOnline ? 'Online' : 'Offline'}
-                          </span>
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -266,28 +304,45 @@ export default function ChatPage() {
         </div>
 
         {/* Chat Area */}
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex-1 flex bg-white border-y border-r border-gray-200 rounded-r-2xl overflow-hidden relative shadow-sm">
           {selectedConversation ? (
-            <div className="w-full h-full">
+            <div className="w-full h-full animate-in fade-in duration-200">
               {showChatBox && (
                 <ChatBox
                   conversationId={selectedConversation._id}
-                  receiverId={getOtherParticipant(selectedConversation)?.userId?._id}
-                  receiverName={getOtherParticipant(selectedConversation)?.userId?.name}
+                  receiverId={getOtherParticipant(selectedConversation)?.userId}
+                  receiverName={getOtherParticipant(selectedConversation)?.name || 'User'}
                   serviceContext={selectedConversation.serviceContext}
                   onClose={handleCloseChat}
+                  isFullScreen={true}
                 />
               )}
             </div>
           ) : (
-            <div className="text-center text-gray-500">
-              <div className="text-6xl mb-4">💬</div>
-              <h2 className="text-xl font-semibold mb-2">Select a conversation</h2>
-              <p>Choose a conversation from the sidebar to start chatting</p>
+            <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50/50">
+              <div className="w-24 h-24 mb-6 rounded-full bg-blue-50 flex items-center justify-center">
+                <svg className="w-12 h-12 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">Your Messages</h2>
+              <p className="text-gray-500 max-w-md text-center">Select a conversation from the sidebar to view your messages or start a new chat with a service provider.</p>
             </div>
           )}
         </div>
       </div>
+      
+      {/* Global Styles for Scrollbar */}
+      <style dangerouslySetInnerHTML={{__html: `
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background-color: #cbd5e1;
+          border-radius: 20px;
+        }
+      `}} />
     </div>
   );
 }

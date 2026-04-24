@@ -1,6 +1,6 @@
-// REMOVE THE IMPORT LINE HERE
 import NotificationSystem from '../components/NotificationSystem';
 import PushNotificationManager from '../components/PushNotificationManager';
+import './globals.css';
 
 export const metadata = {
   title: "AshePashe",

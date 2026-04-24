@@ -64,7 +64,7 @@ export default function Dashboard() {
             <h3>🏥 Hospital & Emergency Search</h3>
             <p>Find nearby hospitals, ambulances, and fire services</p>
             <button
-              onClick={() => router.push('/services')}
+              onClick={() => router.push('/emergency-services')}
               style={styles.cardBtn}
             >
               Search Services

@@ -126,7 +126,7 @@ export default function UserDashboard() {
             <h3>🏥 Find Emergency Services</h3>
             <p>Locate nearby hospitals, ambulances, and fire services instantly</p>
             <button
-              onClick={() => router.push('/services')}
+              onClick={() => router.push('/emergency-services')}
               style={styles.cardBtn}
             >
               Search Now
