@@ -28,10 +28,13 @@ export default function PresenceTracker() {
           const data = await response.json();
           
           if (response.ok && data.token) {
-             // We can store the JWT from our backend if needed for other custom routes
-             localStorage.setItem('token', data.token);
-             localStorage.setItem('userRole', data.user.role);
-             localStorage.setItem('userName', data.user.name);
+             // Only store the Clerk JWT if the user doesn't already have an active manual session
+             const existingToken = localStorage.getItem('token');
+             if (!existingToken) {
+               localStorage.setItem('token', data.token);
+               localStorage.setItem('userRole', data.user.role);
+               localStorage.setItem('userName', data.user.name);
+             }
           }
 
           // 2. Track Presence (Online)

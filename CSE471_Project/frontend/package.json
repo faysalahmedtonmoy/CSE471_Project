@@ -17,7 +17,9 @@
     "nodemailer": "^8.0.4",
     "react": "latest",
     "react-dom": "latest",
-    "socket.io-client": "^4.8.3"
+    "socket.io-client": "^4.8.3",
+    "stream-chat": "^9.42.1",
+    "stream-chat-react": "^14.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.4",

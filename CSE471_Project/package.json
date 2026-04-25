@@ -18,5 +18,10 @@
   ],
   "devDependencies": {
     "concurrently": "^8.2.0"
+  },
+  "dependencies": {
+    "@clerk/nextjs": "^7.2.7",
+    "@maptiler/sdk": "^4.0.1",
+    "maplibre-gl": "^5.24.0"
   }
 }
