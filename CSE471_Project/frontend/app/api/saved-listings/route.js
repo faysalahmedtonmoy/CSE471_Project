@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import connectDB from '../../../backend/lib/mongodb.js';
-import User from '../../../backend/models/User.js';
+import connectDB from '../../../../../backend/lib/mongodb.js';
+import User from '../../../../../backend/models/User.js';
 import jwt from 'jsonwebtoken';
 
 const verifyToken = (token) => {

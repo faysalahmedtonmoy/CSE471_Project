@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import SocialLoginButtons from '../../components/SocialLoginButtons';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({ 
@@ -203,6 +204,9 @@ export default function RegisterPage() {
         <p style={{ textAlign: 'center', marginTop: '1rem' }}>
           Already have an account? <a href="/login" style={s.link}>Login here</a>
         </p>
+        
+        {/* Social Login for Users */}
+        <SocialLoginButtons />
       </div>
     </div>
   );

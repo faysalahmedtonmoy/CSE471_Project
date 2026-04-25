@@ -1,77 +1,77 @@
 'use client';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import SocialLoginButtons from '../../components/SocialLoginButtons';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('USER'); // Default to USER
   const router = useRouter();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, role }), // Send role to backend
-    });
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-    const data = await res.json();
-
-    if (res.ok) {
-      if (data.requiresCode) {
-        router.push(`/verify?email=${encodeURIComponent(email)}`);
-      } else {
-        // Store token and redirect based on role
+      const data = await res.json();
+      if (res.ok) {
         if (typeof window !== 'undefined') {
           localStorage.setItem('token', data.token);
           localStorage.setItem('userRole', data.user.role);
           localStorage.setItem('userName', data.user.name);
         }
-
-        // Redirect to appropriate dashboard based on role
-        if (data.user.role === 'ADMIN') {
-          window.location.href = '/admin';
-        } else if (data.user.role === 'PROVIDER') {
-          window.location.href = '/provider-dashboard';
-        } else {
-          window.location.href = '/user-dashboard';
-        }
+        
+        // Use window.location.href to force a full reload and state clear
+        window.location.href = data.user.role === 'ADMIN' ? '/admin-dashboard' : '/user-dashboard';
+      } else {
+        alert(data.message);
       }
-    } else {
-      alert(data.message || 'Login failed');
+    } catch (error) {
+      alert("Login failed");
     }
   };
 
   return (
-    <div style={s.container}>
-      <div style={s.card}>
-        <h1 style={s.title}>AshePashe</h1>
+    <div style={styles.container}>
+      <div style={styles.card}>
+        <h2 style={{ textAlign: 'center', color: '#2563eb', marginBottom: '1.5rem' }}>Login to AshePashe</h2>
         <form onSubmit={handleLogin}>
-          <input type="email" placeholder="Email" required style={s.input}
-            onChange={(e) => setEmail(e.target.value)} />
-
-          <input type="password" placeholder="Password" required style={s.input}
-            onChange={(e) => setPassword(e.target.value)} />
-
-          <label style={s.label}>Login as:</label>
-          <select style={s.input} value={role} onChange={(e) => setRole(e.target.value)}>
-            <option value="USER">User</option>
-            <option value="PROVIDER">Provider</option>
-            <option value="ADMIN">Admin</option>
-          </select>
-
-          <button type="submit" style={s.btn}>Sign In</button>
+          <input
+            type="email"
+            placeholder="Email Address"
+            required
+            style={styles.input}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            required
+            style={styles.input}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button type="submit" style={styles.btn}>Login</button>
         </form>
-        <p style={{ textAlign: 'center', marginTop: '1rem' }}>
-          Don't have an account? <a href="/register" style={s.link}>Register here</a>
-        </p>
+        
+        <div style={{ margin: '20px 0', textAlign: 'center', color: '#666' }}>
+          <p>Don't have an account? <a href="/register" style={styles.link}>Register here</a></p>
+        </div>
+
+        {/* Clerk Social Login for Users */}
+        <SocialLoginButtons />
       </div>
     </div>
   );
 }
 
-const s = {
+const styles = {
   container: {
     display: 'flex',
     justifyContent: 'center',
@@ -83,43 +83,30 @@ const s = {
     backgroundColor: 'white',
     padding: '2rem',
     borderRadius: '8px',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
     width: '100%',
     maxWidth: '400px',
   },
-  title: {
-    textAlign: 'center',
-    marginBottom: '1.5rem',
-    color: '#2563eb',
-    fontSize: '2rem',
-  },
   input: {
     width: '100%',
-    padding: '0.75rem',
-    marginBottom: '1rem',
+    padding: '10px',
+    marginBottom: '15px',
     border: '1px solid #ddd',
     borderRadius: '4px',
-    fontSize: '1rem',
-  },
-  label: {
-    display: 'block',
-    marginBottom: '0.5rem',
-    fontWeight: 'bold',
-    color: '#555',
+    boxSizing: 'border-box',
   },
   btn: {
     width: '100%',
-    padding: '0.75rem',
+    padding: '10px',
     backgroundColor: '#2563eb',
     color: 'white',
     border: 'none',
     borderRadius: '4px',
-    fontSize: '1rem',
     cursor: 'pointer',
-    marginBottom: '1rem',
+    fontSize: '16px',
   },
   link: {
     color: '#2563eb',
     textDecoration: 'none',
-  },
+  }
 };

@@ -9,7 +9,7 @@ const UserModel = User as any;
 const connectDB = async () => {
   if (mongoose.connections[0].readyState) return;
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
+    await mongoose.connect(process.env.MONGODB_URI as string);
   } catch (error) {
     console.error("DB Connection Error:", error);
     throw error;
@@ -28,6 +28,7 @@ export async function POST(req: Request) {
 
     const user = await UserModel.findOne({ email });
     console.log('USER FOUND:', !!user, user ? { isVerified: user.isVerified, hasCode: !!user.verificationCode } : null);
+    
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
@@ -45,6 +46,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "OTP has expired" }, { status: 400 });
     }
 
+    // Mark as verified and clear OTP
     user.isVerified = true;
     user.verificationCode = null;
     user.otpExpiresAt = null;
