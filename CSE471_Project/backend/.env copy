@@ -1,0 +1,4 @@
+MONGODB_URI=mongodb://localhost:27017/asepase
+JWT_SECRET=asepase-secret
+FRONTEND_URL=http://localhost:3000
+PORT=5000

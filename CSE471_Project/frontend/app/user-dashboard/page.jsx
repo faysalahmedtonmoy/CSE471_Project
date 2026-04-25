@@ -4,44 +4,77 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { io } from 'socket.io-client';
 import ProviderSearch from '../../components/ProviderSearch';
+import { useUser } from '@clerk/nextjs';
 
 export default function UserDashboard() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState(null);
   const [socket, setSocket] = useState(null);
   const router = useRouter();
+  const { isLoaded: clerkLoaded, isSignedIn, user: clerkUser } = useUser();
 
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    const userRole = typeof window !== 'undefined' ? localStorage.getItem('userRole') : null;
 
-    if (!token || userRole !== 'USER') {
-      router.push('/login');
-      return;
-    }
+    const loadProfile = () => {
+      const currentToken = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      if (!currentToken) return false; // Not ready yet
 
-    // Get user profile
-    fetch('/api/auth/profile', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.user) {
-        setUser(data.user);
-      } else {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('token');
+      // Get user profile
+      fetch('/api/auth/profile', {
+        headers: { 'Authorization': `Bearer ${currentToken}` }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.user) {
+          setUser(data.user);
+          setLoading(false);
+        } else {
+          setErrorMsg(`Backend Error: ${data.message || 'User not found in DB'}`);
+          setLoading(false);
         }
+      })
+      .catch((err) => {
+        setErrorMsg(`Network Error: ${err.message}`);
+        setLoading(false);
+      });
+
+      return true; // Token found and fetch started
+    };
+
+    if (token) {
+      // Manual login or already synced
+      loadProfile();
+    } else {
+      // No token found, wait for Clerk to load
+      if (!clerkLoaded) return;
+
+      if (!isSignedIn) {
+        // Neither manual token nor Clerk sign-in exists
         router.push('/login');
+      } else {
+        // Clerk is signed in but token is missing: wait for PresenceTracker to sync it
+        let attempts = 0;
+        const interval = setInterval(() => {
+          attempts++;
+          if (loadProfile()) {
+            clearInterval(interval);
+          } else if (attempts > 50) { // 10 seconds timeout
+            clearInterval(interval);
+            setErrorMsg("Timeout waiting for Clerk to sync with backend database. Please refresh.");
+            setLoading(false);
+          }
+        }, 200);
+        return () => clearInterval(interval);
       }
-    })
-    .catch(() => {
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('token');
-      }
-      router.push('/login');
-    })
-    .finally(() => setLoading(false));
+    }
+  }, [clerkLoaded, isSignedIn, router]);
+
+  useEffect(() => {
+    if (loading) return; // Don't connect socket until loaded
+    
+    const token = localStorage.getItem('token');
 
     // Initialize socket connection for real-time updates
     const socketConnection = io(process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000', {
@@ -91,6 +124,21 @@ export default function UserDashboard() {
     return <div style={{ textAlign: 'center', padding: '50px' }}>Loading...</div>;
   }
 
+  if (errorMsg) {
+    return (
+      <div style={{ textAlign: 'center', padding: '50px', color: 'red', marginTop: '100px' }}>
+        <h2>Authentication Sync Error</h2>
+        <p>{errorMsg}</p>
+        <button onClick={() => {
+          if (typeof window !== 'undefined') localStorage.removeItem('token');
+          router.push('/login');
+        }} style={styles.cardBtn}>
+          Return to Login
+        </button>
+      </div>
+    );
+  }
+
   if (!user) {
     return null;
   }
@@ -117,6 +165,44 @@ export default function UserDashboard() {
           <p><strong>Location:</strong> {user.location || 'Not set'}</p>
           <p><strong>Account Status:</strong> {user.isVerified ? '✅ Verified' : '⏳ Pending'}</p>
         </div>
+
+        {/* Upgrade Banner for Standard Users */}
+        {user.role === 'USER' && (
+          <div style={{
+            backgroundColor: '#eff6ff',
+            border: '1px solid #bfdbfe',
+            borderRadius: '8px',
+            padding: '25px',
+            marginBottom: '30px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
+          }}>
+            <div>
+              <h3 style={{ margin: '0 0 8px 0', color: '#1e40af', fontSize: '20px' }}>Want to offer your services?</h3>
+              <p style={{ margin: 0, color: '#3b82f6', fontSize: '15px' }}>
+                Join our network of professionals and start earning by offering your skills to the community.
+              </p>
+            </div>
+            <button 
+              onClick={() => router.push('/onboarding/provider')}
+              style={{
+                backgroundColor: '#2563eb',
+                color: 'white',
+                border: 'none',
+                padding: '12px 24px',
+                borderRadius: '6px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                marginLeft: '20px'
+              }}
+            >
+              🚀 Become a Provider
+            </button>
+          </div>
+        )}
 
         {/* Provider Search Section */}
         <ProviderSearch />

@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  location: { type: String, required: true },
+  password: { type: String, default: null },
+  location: { type: String, default: '' },
   role: {
     type: String,
     enum: ['USER', 'PROVIDER', 'ADMIN'],
@@ -14,6 +14,7 @@ const UserSchema = new mongoose.Schema({
   verificationCode: { type: String, default: null },
   otpExpiresAt: { type: Date, default: null },
   isProviderVerified: { type: Boolean, default: false }, // Admin verification for providers
+  clerkUserId: { type: String, default: null }, // Track Clerk ID
   
   // Provider-specific fields
   skills: { type: [String], default: [] },

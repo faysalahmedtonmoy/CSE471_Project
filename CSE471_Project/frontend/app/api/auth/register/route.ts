@@ -18,7 +18,7 @@ const transporter = nodemailer.createTransport({
 const connectDB = async () => {
   if (mongoose.connections[0].readyState) return;
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
+    await mongoose.connect(process.env.MONGODB_URI as string);
   } catch (error) {
     console.error("DB Connection Error:", error);
     throw error;
@@ -73,11 +73,33 @@ export async function POST(req: Request) {
     const newUser = new UserModel(userData);
     await newUser.save();
 
-    // 7. Log OTP to terminal instead of sending email
+    // 7. Log OTP to terminal
     console.log(`AshePashe OTP for ${email}: ${otp}`);
 
+    // 8. Send OTP to Gmail
+    try {
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'AshePashe - Your Verification Code',
+        text: `Your verification code is: ${otp}. It will expire in 10 minutes.`,
+        html: `
+          <div style="font-family: Arial, sans-serif; padding: 20px; text-align: center;">
+            <h2 style="color: #2563eb;">Welcome to AshePashe!</h2>
+            <p>Your verification code is:</p>
+            <h1 style="color: #333; letter-spacing: 5px;">${otp}</h1>
+            <p>This code will expire in 10 minutes.</p>
+          </div>
+        `
+      });
+      console.log('OTP email sent successfully.');
+    } catch (mailError) {
+      console.error('Failed to send OTP email:', mailError);
+      // We don't throw here so the user can still use the terminal OTP if email fails
+    }
+
     return NextResponse.json({ 
-      message: "User registered. OTP logged to terminal.", 
+      message: "User registered. OTP sent to your email.", 
       userId: newUser._id,
       otp // included for easy terminal verification during development
     }, { status: 200 });
