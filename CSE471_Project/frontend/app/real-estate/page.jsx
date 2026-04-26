@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import BackToDashboard from '../../components/BackToDashboard';
+import MultiImageUpload from '../../components/MultiImageUpload';
 
 export default function RealEstatePage() {
   const [listings, setListings] = useState([]);
@@ -17,6 +18,7 @@ export default function RealEstatePage() {
     bathrooms: 1,
     contactPhone: '',
     contactEmail: '',
+    images: [],
   });
   const [filters, setFilters] = useState({
     listingType: 'Apartment',
@@ -76,6 +78,7 @@ export default function RealEstatePage() {
         bathrooms: 1,
         contactPhone: '',
         contactEmail: '',
+        images: [],
       });
       fetchListings();
     } else {
@@ -140,6 +143,12 @@ export default function RealEstatePage() {
             </div>
             <input style={inputStyle} value={formData.contactPhone} onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })} placeholder="Contact phone" />
             <input style={inputStyle} type="email" value={formData.contactEmail} onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })} placeholder="Contact email" />
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', gridColumn: '1 / -1' }}>
+              <label style={labelStyle}>Listing Images (Up to 5)</label>
+              <MultiImageUpload onUpload={(urls) => setFormData((prev) => ({ ...prev, images: urls }))} maxFiles={5} />
+            </div>
+
             <button type="submit" style={buttonStyle}>Submit Listing</button>
           </form>
         </section>
@@ -192,6 +201,17 @@ function ListingCard({ listing }) {
 
   return (
     <div style={cardStyle}>
+      {/* Show the first image as cover if available */}
+      {(listing.images?.length > 0 || listing.imageUrl) && (
+        <div style={{ width: '100%', height: '200px', marginBottom: '15px', borderRadius: '8px', overflow: 'hidden', position: 'relative' }}>
+          <img src={listing.images?.[0] || listing.imageUrl} alt={listing.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          {listing.images?.length > 1 && (
+            <div style={{ position: 'absolute', bottom: '10px', right: '10px', background: 'rgba(0,0,0,0.6)', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+              +{listing.images.length - 1} More
+            </div>
+          )}
+        </div>
+      )}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
         <h3>{listing.title}</h3>
         <button

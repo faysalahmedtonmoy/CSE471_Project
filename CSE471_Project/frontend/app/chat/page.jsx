@@ -198,6 +198,14 @@ export default function ChatPage() {
         {/* Conversations Sidebar */}
         <div className="w-full md:w-[380px] bg-white border border-gray-200 rounded-l-2xl shadow-sm flex flex-col z-10 flex-shrink-0">
           <div className="p-4 border-b border-gray-100 flex flex-col gap-4">
+            {/* Back Button */}
+            <button 
+              onClick={() => router.push('/user-dashboard')}
+              className="self-start text-sm font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 mb-1 transition-colors"
+            >
+              ← Back to Dashboard
+            </button>
+
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-bold text-gray-800">Messages</h1>
               <div className="bg-blue-100 text-blue-600 px-2.5 py-1 rounded-full text-sm font-bold">

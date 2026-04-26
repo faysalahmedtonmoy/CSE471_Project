@@ -1,20 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { StreamChat } from 'stream-chat';
 import jwt from 'jsonwebtoken';
-import mongoose from 'mongoose';
-import User from '../../../../../backend/models/User.js';
+import connectDB from '@/lib/db';
+import User from '@/lib/models/User';
 
 const UserModel = User as any;
-
-const connectDB = async () => {
-  if (mongoose.connections[0].readyState) return;
-  try {
-    await mongoose.connect(process.env.MONGODB_URI as string);
-  } catch (error) {
-    console.error("DB Connection Error:", error);
-    throw error;
-  }
-};
 
 export async function POST(req: NextRequest) {
   try {

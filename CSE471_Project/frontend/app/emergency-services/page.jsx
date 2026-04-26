@@ -1,11 +1,21 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
 import Navbar from '../../components/Navbar';
 import HospitalSearch from '../../components/HospitalSearch';
-import BackToDashboard from '../../components/BackToDashboard';
+
+// Dynamic import is required — MapTiler uses browser-only APIs (WebGL, navigator)
+const EmergencyMap = dynamic(() => import('../../components/EmergencyMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[480px] rounded-xl bg-gray-100 flex items-center justify-center text-gray-500">
+      Loading map…
+    </div>
+  ),
+});
 
 export default function EmergencyServicesPage() {
   const router = useRouter();
@@ -66,9 +76,29 @@ export default function EmergencyServicesPage() {
   return (
     <div>
       <Navbar />
-      <BackToDashboard />
       <div className="p-6">
-        <h1 className="text-3xl font-bold mb-6">Emergency Services</h1>
+        <div className="flex items-center gap-4 mb-4">
+          <button 
+            onClick={() => router.push('/user-dashboard')}
+            className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-semibold"
+          >
+            ← Back to Dashboard
+          </button>
+        </div>
+        <h1 className="text-3xl font-bold mb-4">Emergency Services</h1>
+
+        {/* ── MapTiler Interactive Map ────────────────────────────────── */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-3 text-gray-700">📍 Find Hospitals Near You</h2>
+          <EmergencyMap
+            onPinLocation={(lat, lng, name) => {
+              alert(`📌 Pinned: ${name}\nLat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`);
+              // TODO: call pinEmergencyLocation server action here
+            }}
+          />
+        </div>
+
+        <hr className="mb-6 border-gray-200" />
         
         <div className="flex gap-2 mb-6">
           <button

@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
-import connectDB from '../../../../../backend/lib/mongodb.js';
-import ServiceRequest from '../../../../../backend/models/ServiceRequest.js';
-import User from '../../../../../backend/models/User.js';
-import Notification from '../../../../../backend/models/Notification.js';
+import connectDB from '@/lib/db';
+import ServiceRequest from '@/lib/models/ServiceRequest';
+import User from '@/lib/models/User';
+import Notification from '@/lib/models/Notification';
 import jwt from 'jsonwebtoken';
-import { getIO } from '../../../../../backend/lib/socket.js';
+
+// Note: Socket.IO real-time events are emitted by the backend server, not from Next.js API routes.
+const getIO = () => null;
 
 const verifyToken = (token) => {
   try {

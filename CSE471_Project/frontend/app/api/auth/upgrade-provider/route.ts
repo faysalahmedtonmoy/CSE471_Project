@@ -1,12 +1,7 @@
 import { NextResponse } from 'next/server';
-import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
-import User from '../../../../../backend/models/User.js';
-
-async function connectDB() {
-  if (mongoose.connections[0].readyState) return;
-  await mongoose.connect(process.env.MONGODB_URI!);
-}
+import connectDB from '@/lib/db';
+import User from '@/lib/models/User';
 
 export async function POST(req: Request) {
   try {

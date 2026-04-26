@@ -1,29 +1,11 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { UserButton, useUser } from '@clerk/nextjs';
 
 export default function Navbar() {
   const router = useRouter();
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const decoded = JSON.parse(atob(token.split('.')[1]));
-        setUser(decoded);
-      } catch (error) {
-        console.error('Error decoding token:', error);
-      }
-    }
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userRole');
-    router.push('/login');
-  };
+  const { user, isSignedIn } = useUser();
 
   return (
     <nav style={styles.navbar}>
@@ -33,12 +15,13 @@ export default function Navbar() {
         </div>
 
         <div style={styles.navRight}>
-          {user && (
+          {isSignedIn && (
             <>
-              <span style={styles.userEmail}>{user.email}</span>
-              <button onClick={handleLogout} style={styles.logoutBtn}>
-                Logout
-              </button>
+              <span style={styles.userEmail}>
+                {user.primaryEmailAddress?.emailAddress}
+              </span>
+              {/* Clerk UserButton: handles sign-out, profile, and avatar */}
+              <UserButton afterSignOutUrl="/login" />
             </>
           )}
         </div>
