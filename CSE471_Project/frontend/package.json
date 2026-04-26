@@ -9,15 +9,22 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^7.2.5",
+    "@maptiler/sdk": "^4.0.1",
+    "@types/leaflet": "^1.9.21",
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.0",
     "jwt-decode": "^4.0.0",
+    "leaflet": "^1.9.4",
     "mongoose": "^8.0.0",
     "next": "latest",
+    "next-cloudinary": "^6.17.5",
     "nodemailer": "^8.0.4",
     "react": "latest",
     "react-dom": "latest",
-    "socket.io-client": "^4.8.3"
+    "react-leaflet": "^5.0.0",
+    "socket.io-client": "^4.8.3",
+    "stream-chat": "^9.42.1",
+    "stream-chat-react": "^14.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.4",

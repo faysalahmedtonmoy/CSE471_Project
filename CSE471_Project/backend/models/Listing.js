@@ -22,6 +22,8 @@ const ListingSchema = new mongoose.Schema(
       enum: ["Available", "Rented", "Pending"],
       default: "Available",
     },
+    imageUrl: { type: String, default: null },
+    images: [{ type: String }],
   },
   { timestamps: true }
 );

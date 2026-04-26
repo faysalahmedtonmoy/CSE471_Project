@@ -110,6 +110,9 @@ router.post('/', async (req, res) => {
     conversation.updatedAt = new Date();
 
     // Update unread count
+    if (!conversation.unreadCount) {
+      conversation.unreadCount = new Map();
+    }
     const currentCount = conversation.unreadCount.get(receiverId) || 0;
     conversation.unreadCount.set(receiverId, currentCount + 1);
     await conversation.save();

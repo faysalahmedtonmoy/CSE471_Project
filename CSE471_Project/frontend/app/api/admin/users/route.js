@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
-import connectDB from '../../../../../backend/lib/mongodb.js';
-import User from '../../../../../backend/models/User.js';
+import connectDB from '@/lib/db';
+import User from '@/lib/models/User';
 
 const authenticateAdmin = (authorizationHeader) => {
   if (!authorizationHeader) return null;
